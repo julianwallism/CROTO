@@ -1,2 +1,2 @@
 # CROTO
-CROTO is a compiler written in 
+CROTO is a compiler written in Java
