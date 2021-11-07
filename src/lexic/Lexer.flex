@@ -1,6 +1,6 @@
 /* UserCode */
 
-package croto.lexic;
+package lexic;
 
 %%
 
