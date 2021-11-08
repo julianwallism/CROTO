@@ -41,6 +41,14 @@ public class Token {
         CROTOFUNC
     }
     
+    public enum Literal{
+        STRING_LITERAL,
+        INTEGER_LITERAL,
+        DECIMAL_LITERAL,
+        TRUE,
+        FALSE
+    }
+    
     public enum Other{
         IDENTIFIER,
         END_OF_LINE,
