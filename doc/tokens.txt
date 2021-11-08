@@ -28,3 +28,8 @@ letras_12345
 and
 or
 not
+/n
+/t
+/r
+espacio
+comentarios

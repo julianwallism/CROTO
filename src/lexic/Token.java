@@ -8,32 +8,49 @@ package lexic;
  *
  * @author elsho
  */
-public enum Token {
-    INTEGER(Parent.TYPE),
-    STRING,
-    BOOLEAN,
-    IDENTIFIER, // Variable, function names
-    ASSIGNMENT, // =
-    RESERVED,   // Keywords
-    ADDITION,   // +
-    SUBTRACTION,// - 
-    EQUAL,      // == 
-    NOT_EQUAL,  // !=
-    AND,        // &&
-    OR,         // ||
-    ERROR;
-    
-    private Parent parent;
-    
-    Token(Parent parent){
-        this.parent = parent;
+public class Token {
+ 
+    public enum Type{
+        INT,
+        FLOAT,
+        BOOL,
+        CHAR,
+        CONST
     }
     
-    public Parent getParent() { return this.parent; }
+    public enum Operator{
+        ASSIGNMENT,     // =
+        ADDITION,       // +
+        SUBTRACTION,    // -
+        MULTIPLICATION, // *
+        DIVISION,       // /
+        EQUAL,          // ==
+        DIFFERENT,      // !=
+        GREATER,        // >
+        LOWER,          // <
+        AND,
+        OR,
+        NOT
+    }
     
-    public enum Parent {
-        KEYWORD,
-        OPERATOR,
-        TYPE
+    public enum Keywords{
+        IF,
+        ELSE,
+        WHILE,
+        FOR,
+        CROTOFUNC
+    }
+    
+    public enum Other{
+        IDENTIFIER,
+        END_OF_LINE,
+        COMMENT,
+        OPEN_P,         // (
+        CLOSED_P,       // )
+        OPEN_B,         // {
+        CLOSED_B,       // }
+        SEMICOLON,      // ;
+        COLON,          // ,
+        PERIOD          // .
     }
 }
