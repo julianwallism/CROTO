@@ -16,7 +16,7 @@ crotofunc
 ;
 ,
 .
-letras_12345
+(a-zA-Z)+((a-zA-Z)*(0-9)*-/_)*
 +
 -
 *
