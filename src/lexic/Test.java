@@ -4,6 +4,7 @@
  */
 package lexic;
 
+import java_cup.runtime.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -21,8 +22,8 @@ public class Test {
         Lexer lex = new Lexer(br);
         while (true){
             try {
-                Token tk = lex.yylex();
-                System.out.println(tk);
+                Symbol s = lex.next_token();
+                System.out.print(s + " ");
             } catch (IOException ex) {
                 Logger.getLogger(Test.class.getName()).log(Level.SEVERE, null, ex);
             }
