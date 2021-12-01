@@ -1,6 +1,6 @@
 /* Literal */
 literal -> STRING_VALUE | INTEGER_VALUE | FLOAT_VALUE | CHAR_VALUE
-
+    
 /* Types */
 type -> primitive_type | reference_type
 primitive_type -> numeric_type | BOOLEAN
@@ -87,12 +87,24 @@ array_access -> IDENTIFIER LBRACK expression RBRACK | primary_not_array LBRACK e
 method_invocation -> IDENTIFIER LPAREN argument_list_opt RPAREN
 
 /* Postfix */
-postfix_expression -> primary | IDENTIFIER | postincrement_expression | postdecrement_expression
+/*postfix_expression -> primary | IDENTIFIER | postincrement_expression | postdecrement_expression */
+postfix_expression -> IDENTIFIER postincrement_expression | IDENTIFIER postdecrement_expression
 post_increment_expression -> postfix_expression INCREMENT
 post_decrement_expression -> postfix_expression DECREMENT
 
 
 unary_expression -> preincrement_expression | predecrement_expression | ADDITION unary_expression | MINUS unary_expression | unary_expression_not_plus_minus
 
+/* Assignment */
+assignment_expression -> conditional_expression | assignment
+assignment_operator -> EQUAL | ??
+assignment -> left_hand_side assignment_operator assignment_expression
+left_hand_side -> name | field_access | array_access
+
+conditional_expression -> or_expression
+or_expression -> and_expression |  
+
 
 expression_opt -> expression | LAMBDA
+expression -> assignment_expression
+constant_expression -> expression
