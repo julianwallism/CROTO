@@ -40,7 +40,7 @@ terminal INCREMENT, DECREMENT;
 terminal SEMICOLON, COMMA, COLON; // Punctuation
 terminal LPAREN, RPAREN, LBRACE, RBRACE, LBRACK, RBRACK; // Separators
 
-terminal java.lang.Number INTEGER_VALUE;
+terminal java.lang.Integer INTEGER_VALUE;
 terminal java.lang.Number FLOAT_VALUE;
 terminal java.lang.Boolean BOOLEAN_VALUE;
 terminal java.lang.Character CHARACTER_VALUE;
@@ -100,13 +100,13 @@ type ::= primitive_type | array_type ;
 primitive_type ::= numeric_type | BOOLEAN ;
 numeric_type ::= integral_type | FLOAT ;
 integral_type ::= INTEGER | CHARACTER ;
-array_type ::= primitive_type dims | IDENTIFIER dims ;
+array_type ::= primitive_type empty_dims | IDENTIFIER empty_dims ;
 
 /* Modifiers */
 
 /* VARIABLE DECLARATIONS*/
 variable_declarators ::= variable_declarator | variable_declarators COMMA variable_declarator ;
-variable_declarator ::= variable_declarator_id | variable_declarator_id EQUAL variable_initializer ;
+variable_declarator ::= variable_declarator_id | variable_declarator_id ASSIGNMENT variable_initializer ;
 variable_declarator_id ::= IDENTIFIER ;
 variable_initializer ::= expression | array_initializer ;
 
@@ -178,7 +178,7 @@ array_creation_expression ::= NEW primitive_type dim_exprs dims_opt | NEW primit
 dim_exprs ::= dim_expr | dim_exprs dim_expr ;
 dim_expr ::= LBRACK expression RBRACK ;
 dims_opt ::= | dims ;
-dims ::= LBRACK RBRACK dims LBRACK RBRACK ;
+dims ::= LBRACK RBRACK dims | LBRACK RBRACK ;
 
 /* Methods */
 method_invocation ::= IDENTIFIER LPAREN argument_list_opt RPAREN ;
@@ -187,7 +187,7 @@ method_invocation ::= IDENTIFIER LPAREN argument_list_opt RPAREN ;
 array_access ::= IDENTIFIER LBRACK expression RBRACK | primary_not_array LBRACK expression RBRACK ;
 
 unary_expression ::= preincrement_expression | predecrement_expression | ADDITION unary_expression | SUBTRACTION unary_expression | unary_expression_not_plus_minus ;
-preincrement_expression ::= INCREMENT unary_expression ; 
+preincrement_expression ::= INCREMENT unary_expression ;
 predecrement_expression ::= DECREMENT unary_expression ;
 postincrement_expression ::= unary_expression INCREMENT ;
 postdecrement_expression ::= unary_expression DECREMENT ;
@@ -214,3 +214,6 @@ left_hand_side ::= IDENTIFIER | array_access ;
 expression_opt ::= expression |  ;
 expression ::= assignment_expression ;
 constant_expression ::= expression	;
+
+empty_dims ::= RBRACK LBRACK empty_dims_opt ;
+empty_dims_opt ::= | RBRACK LBRACK empty_dims_opt ;

@@ -15,7 +15,7 @@ import sintactic.parser;
 
 /**
  *
- * @author elsho
+ * @author elsho, walli, sans
  */
 public class Main {
 
