@@ -1,5 +1,7 @@
 /* Execution: java -jar ../../lib/cup-11b.jar -location Syntaxer.cup (ejecutar en: /src/sinctactic) */
+package sintactic;
 import java_cup.runtime.*;
+
 parser code  {: 
 	public void report_error(String message, Object info) {
 		StringBuilder errorMessage = new StringBuilder("Error ");
@@ -12,6 +14,7 @@ parser code  {:
 	
 	public void report_fatal_error(String message, Object info) {
 		report_error(message, info);
+		done_
 		throw new RuntimeException("Fatal Syntax Error");
 	}
 :};
@@ -87,6 +90,7 @@ non terminal relational_expression;
 non terminal conditional_expression, conditional_or_expression, conditional_and_expression, equality_expression; // Conditional Expressions
 non terminal assignment_expression, assignment, left_hand_side; // Assignment
 non terminal expression_opt, expression, constant_expression;
+non terminal empty_dims, empty_dims_opt;
 
 start with begin;
 
@@ -136,7 +140,7 @@ local_variable_declaration_statement ::= local_variable_declaration SEMICOLON ;
 local_variable_declaration ::= type variable_declarators | CONSTANT type variable_declarators ;
 
 /* Statements */
-statement ::= statement_with_no_trailing_substatement  | if_statement | while_statement | for_statement ;
+statement ::= statement_with_no_trailing_substatement | if_statement | while_statement | for_statement ;
 statement_expression_list ::= statement_expression | statement_expression_list COMMA statement_expression ;
 statement_with_no_trailing_substatement ::= block | SEMICOLON | expression_statement | switch_statement | break_statement | return_statement ;
 expression_statement ::= statement_expression SEMICOLON ;
