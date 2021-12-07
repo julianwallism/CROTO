@@ -2,7 +2,9 @@
 
 package lexic;
 
-import java_cup.runtime.*;
+import java_cup.runtime.Symbol;
+import java_cup.runtime.ComplexSymbolFactory;
+import java_cup.runtime.ComplexSymbolFactory.Location;
 import sintactic.sym;
 %%
 
@@ -16,14 +18,32 @@ import sintactic.sym;
 %public
 
 %{
-    StringBuilder string = new StringBuilder();
+    StringBuffer string = new StringBuffer();
+    ComplexSymbolFactory symbolFactory;
 
-    private Symbol symbol(int type){
-        return new Symbol(type, yyline, yycolumn);
+    public Lexer(java.io.Reader in, ComplexSymbolFactory sf){
+	this(in);
+	symbolFactory = sf;
     }
 
-    private Symbol symbol(int type, Object value){
-        return new Symbol(type, yyline, yycolumn, value);
+    private Symbol symbol(String name, int sym) {
+        return symbolFactory.newSymbol(name, sym, new Location(yyline+1,yycolumn+1, (int) yychar), new Location(yyline+1,yycolumn+yylength(), (int) (yychar+yylength())));
+    }
+  
+    private Symbol symbol(String name, int sym, Object val) {
+        Location left = new Location(yyline+1,yycolumn+1, (int) yychar);
+        Location right= new Location(yyline+1,yycolumn+yylength(), (int) (yychar+yylength()));
+        return symbolFactory.newSymbol(name, sym, left, right,val);
+    } 
+
+    private Symbol symbol(String name, int sym, Object val,int buflength) {
+        Location left = new Location(yyline+1,yycolumn+yylength()-buflength, (int) (yychar+yylength()-buflength));
+        Location right= new Location(yyline+1,yycolumn+yylength(), (int) (yychar+yylength()));
+        return symbolFactory.newSymbol(name, sym, left, right,val);
+    }
+       
+    private void error(String message) {
+        System.out.println("Error at line " + (yyline+1) + ", column " + (yycolumn+1) + " : " + message);
     }
 %}
 
@@ -61,49 +81,49 @@ SingleCharacter = [^\r\n\'\\]
 <YYINITIAL> {
 
     /* Keywords */
-    "int"                   { return symbol(sym.INTEGER); }
-    "float"                 { return symbol(sym.FLOAT); }
-    "bool"                  { return symbol(sym.BOOLEAN); }
-    "char"                  { return symbol(sym.CHARACTER); }
-    "const"                 { return symbol(sym.CONSTANT); }
-    //"string"                { return symbol(sym.STRING); }
-    "if"                    { return symbol(sym.IF); }
-    "else"                  { return symbol(sym.ELSE); }
-    "while"                 { return symbol(sym.WHILE); }
-    "for"                   { return symbol(sym.FOR); }
-    "crotofunc"             { return symbol(sym.CROTOFUNC); }
-    "switch"                { return symbol(sym.SWITCH); }
-    "case"                  { return symbol(sym.CASE); }
-    "break"                 { return symbol(sym.BREAK); }
-    "return"                { return symbol(sym.RETURN); }
-    "and"                   { return symbol(sym.AND); }
-    "or"                    { return symbol(sym.OR); }
-    "not"                   { return symbol(sym.NOT); }
+    "int"                   { return symbol("int", sym.INTEGER); }
+    "float"                 { return symbol("float", sym.FLOAT); }
+    "bool"                  { return symbol("bool", sym.BOOLEAN); }
+    "char"                  { return symbol("char" , sym.CHARACTER); }
+    "const"                 { return symbol("const" , sym.CONSTANT); }
+    //"string"                { return symbol(STRING); }
+    "if"                    { return symbol("if", sym.IF); }
+    "else"                  { return symbol("else", sym.ELSE); }
+    "while"                 { return symbol("while",sym.WHILE); }
+    "for"                   { return symbol("for", sym.FOR); }
+    "crotofunc"             { return symbol("function", sym.CROTOFUNC); }
+    "switch"                { return symbol("switch", sym.SWITCH); }
+    "case"                  { return symbol("case", sym.CASE); }
+    "break"                 { return symbol("break", sym.BREAK); }
+    "return"                { return symbol("return", sym.RETURN); }
+    "and"                   { return symbol("and", sym.AND); }
+    "or"                    { return symbol("or", sym.OR); }
+    "not"                   { return symbol("not", sym.NOT); }
 
     /* operators */
-    "="                     { return symbol(sym.ASSIGNMENT); }
-    "+"                     { return symbol(sym.ADDITION); }
-    "-"                     { return symbol(sym.SUBTRACTION); }
-    "*"                     { return symbol(sym.MULTIPLICATION); }
-    "/"                     { return symbol(sym.DIVISION); }
-    "=="                    { return symbol(sym.EQUAL); }
-    "!="                    { return symbol(sym.DIFFERENT); }
-    ">"                     { return symbol(sym.GREATER); }
-    "<"                     { return symbol(sym.LOWER); }
-    ">="                    { return symbol(sym.GREATER_EQUAL); }
-    "<="                    { return symbol(sym.GREATER_EQUAL); }
-    "--"                    { return symbol(sym.DECREMENT); }
-    "++"                    { return symbol(sym.INCREMENT); }
+    "="                     { return symbol("=", sym.ASSIGNMENT); }
+    "+"                     { return symbol("+", sym.ADDITION); }
+    "-"                     { return symbol("-", sym.SUBTRACTION); }
+    "*"                     { return symbol("*", sym.MULTIPLICATION); }
+    "/"                     { return symbol("/", sym.DIVISION); }
+    "=="                    { return symbol("==", sym.EQUAL); }
+    "!="                    { return symbol("!=", sym.DIFFERENT); }
+    ">"                     { return symbol(">", sym.GREATER); }
+    "<"                     { return symbol("<", sym.LOWER); }
+    ">="                    { return symbol(">=", sym.GREATER_EQUAL); }
+    "<="                    { return symbol("<=", sym.GREATER_EQUAL); }
+    "--"                    { return symbol("--", sym.DECREMENT); }
+    "++"                    { return symbol("++", sym.INCREMENT); }
 
     /* separators */
-    "("                     { return symbol(sym.LPAREN); }
-    ")"                     { return symbol(sym.RPAREN); }
-    "{"                     { return symbol(sym.LBRACE); }
-    "}"                     { return symbol(sym.RBRACE); }
-    "["                     { return symbol(sym.LBRACK); }
-    "]"                     { return symbol(sym.RBRACK); }
-    ";"                     { return symbol(sym.SEMICOLON); }
-    ","                     { return symbol(sym.COMMA); }
+    "("                     { return symbol("(", sym.LPAREN); }
+    ")"                     { return symbol(")", sym.RPAREN); }
+    "{"                     { return symbol("{", sym.LBRACE); }
+    "}"                     { return symbol("}", sym.RBRACE); }
+    "["                     { return symbol("[", sym.LBRACK); }
+    "]"                     { return symbol("]", sym.RBRACK); }
+    ";"                     { return symbol(";", sym.SEMICOLON); }
+    ","                     { return symbol(",", sym.COMMA); }
 
     /* string literal */
     \"                      { yybegin(STRING); string.setLength(0); }
@@ -112,8 +132,8 @@ SingleCharacter = [^\r\n\'\\]
     \'                      { yybegin(CHARLITERAL); }
 
     /* numeric literals */
-    {DecIntegerLiteral}     { return symbol(sym.INTEGER_VALUE, Integer.valueOf(yytext())); }
-    {FloatLiteral}          { return symbol(sym.FLOAT_VALUE, Float.parseFloat(yytext().substring(0,yylength() - 1))); }
+    {DecIntegerLiteral}     { return symbol("integer value", sym.INTEGER_VALUE, Integer.valueOf(yytext())); }
+    {FloatLiteral}          { return symbol("float value", sym.FLOAT_VALUE, Float.parseFloat(yytext().substring(0,yylength() - 1))); }
 
     /* comments */
     {Comment}               { /* ignore */ }
@@ -122,11 +142,11 @@ SingleCharacter = [^\r\n\'\\]
     {WhiteSpace}            { /* ignore */ }
 
     /* identifiers */ 
-    {Identifier}            { return symbol(sym.IDENTIFIER, yytext()); }  
+    {Identifier}            { return symbol("id", sym.IDENTIFIER, yytext()); }  
 }
 
 <STRING> {
-  \"                        { yybegin(YYINITIAL); return symbol(sym.STRING_VALUE, string.toString()); }
+  \"                        { yybegin(YYINITIAL); return symbol("string value", sym.STRING_VALUE, string.toString()); }
   {StringCharacter}+             { string.append( yytext() ); }
   
   /* escape sequences */
@@ -144,17 +164,17 @@ SingleCharacter = [^\r\n\'\\]
 }
 
 <CHARLITERAL> {
-  {SingleCharacter}\'       { yybegin(YYINITIAL); return symbol(sym.CHARACTER_VALUE, yytext().charAt(0)); }
+  {SingleCharacter}\'       { yybegin(YYINITIAL); return symbol("char velue", sym.CHARACTER_VALUE, yytext().charAt(0)); }
   
   /* escape sequences */
-  "\\b"\'                   { yybegin(YYINITIAL); return symbol(sym.CHARACTER_VALUE, '\b');}
-  "\\t"\'                   { yybegin(YYINITIAL); return symbol(sym.CHARACTER_VALUE, '\t');}
-  "\\n"\'                   { yybegin(YYINITIAL); return symbol(sym.CHARACTER_VALUE, '\n');}
-  "\\f"\'                   { yybegin(YYINITIAL); return symbol(sym.CHARACTER_VALUE, '\f');}
-  "\\r"\'                   { yybegin(YYINITIAL); return symbol(sym.CHARACTER_VALUE, '\r');}
-  "\\\""\'                  { yybegin(YYINITIAL); return symbol(sym.CHARACTER_VALUE, '\"');}
-  "\\'"\'                   { yybegin(YYINITIAL); return symbol(sym.CHARACTER_VALUE, '\'');}
-  "\\\\"\'                  { yybegin(YYINITIAL); return symbol(sym.CHARACTER_VALUE, '\\'); }
+  "\\b"\'                   { yybegin(YYINITIAL); return symbol("\\b", sym.CHARACTER_VALUE, '\b');}
+  "\\t"\'                   { yybegin(YYINITIAL); return symbol("\\t", sym.CHARACTER_VALUE, '\t');}
+  "\\n"\'                   { yybegin(YYINITIAL); return symbol("\\n", sym.CHARACTER_VALUE, '\n');}
+  "\\f"\'                   { yybegin(YYINITIAL); return symbol("\\f", sym.CHARACTER_VALUE, '\f');}
+  "\\r"\'                   { yybegin(YYINITIAL); return symbol("\\r", sym.CHARACTER_VALUE, '\r');}
+  //"\\\""\'                  { yybegin(YYINITIAL); return symbol("\\\"", sym.CHARACTER_VALUE, '\"');}
+  "\\'"\'                   { yybegin(YYINITIAL); return symbol("\\'", sym.CHARACTER_VALUE, '\'');}
+  //"\\\\"\'                  { yybegin(YYINITIAL); return symbol("\\\\, sym.CHARACTER_VALUE, '\\'); }
   
   \\.                       { throw new RuntimeException("Illegal escape sequence \"" + yytext() + "\""); }
   {LineTerminator}          { throw new RuntimeException("Unterminated character literal at end of line"); }
@@ -163,4 +183,4 @@ SingleCharacter = [^\r\n\'\\]
 /* errors */
 [^]                         { throw new RuntimeException("Illegal character \"" + yytext() +
                                                               "\" at line "+yyline+", column " + yycolumn); }
-<<EOF>>                     { return symbol(sym.EOF); }
+<<EOF>>                     { return symbol("eof", sym.EOF); }

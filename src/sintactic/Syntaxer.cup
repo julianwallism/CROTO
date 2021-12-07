@@ -1,4 +1,4 @@
-/* Execution: java -jar ../../lib/cup-11b.jar Syntaxer.cup (ejecutar en: /src/sinctactic) */
+/* Execution: java -jar ../../lib/cup-11b.jar -location Syntaxer.cup (ejecutar en: /src/sinctactic) */
 import java_cup.runtime.*;
 parser code  {: 
 	public void report_error(String message, Object info) {
