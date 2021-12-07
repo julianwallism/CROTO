@@ -9,7 +9,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java_cup.runtime.ComplexSymbolFactory;
+import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import java_cup.runtime.Symbol;
+import java_cup.runtime.SymbolFactory;
 import lexic.Lexer;
 import sintactic.parser;
 
@@ -21,12 +24,14 @@ public class Main {
 
     private static void lexerTester() {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        Lexer lex = new Lexer(br);
+        ComplexSymbolFactory symFact = new ComplexSymbolFactory();
+        Lexer lex = new Lexer(br, symFact);
         System.out.println("Introduce codigo:");
         while (true) {
             try {
-                Symbol s = lex.next_token();
-                System.out.print(s + " ");
+                ComplexSymbol s = (ComplexSymbol) lex.next_token();
+                
+                System.out.print(s.getName() + " ");
             } catch (IOException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -38,8 +43,9 @@ public class Main {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             Lexer lex = new Lexer(br);
+            SymbolFactory symFact = new ComplexSymbolFactory();
+            parser p = new parser(lex, symFact);
             System.out.println("Introduce codigo:");
-            parser p = new parser(lex);
             p.parse();
         } catch (Exception ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
@@ -47,6 +53,6 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        sintacticTester();
+        lexerTester();
     }
 }
