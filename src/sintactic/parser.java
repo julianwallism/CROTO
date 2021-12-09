@@ -4,8 +4,6 @@
 package sintactic;
 
 import java.util.LinkedList;
-import java.util.List;
-import java_cup.ErrorManager;
 import java_cup.runtime.*;
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import java_cup.runtime.ComplexSymbolFactory.Location;
