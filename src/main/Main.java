@@ -11,8 +11,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
-import java_cup.runtime.Symbol;
-import java_cup.runtime.SymbolFactory;
 import lexic.Lexer;
 import sintactic.parser;
 
@@ -30,7 +28,6 @@ public class Main {
         while (true) {
             try {
                 ComplexSymbol s = (ComplexSymbol) lex.next_token();
-                
                 System.out.print(s.getName() + " ");
             } catch (IOException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
@@ -42,8 +39,8 @@ public class Main {
     private static void sintacticTester() {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-            Lexer lex = new Lexer(br);
-            SymbolFactory symFact = new ComplexSymbolFactory();
+            ComplexSymbolFactory symFact = new ComplexSymbolFactory();
+            Lexer lex = new Lexer(br, symFact);
             parser p = new parser(lex, symFact);
             System.out.println("Introduce codigo:");
             p.parse();
@@ -53,6 +50,6 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        lexerTester();
+        sintacticTester();
     }
 }

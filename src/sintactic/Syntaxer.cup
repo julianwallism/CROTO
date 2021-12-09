@@ -1,21 +1,23 @@
-/* Execution: java -jar ../../lib/cup-11b.jar -location Syntaxer.cup (ejecutar en: /src/sinctactic) */
+/* Execution: java -jar ../../lib/cup-11b.jar -locations Syntaxer.cup (ejecutar en: /src/sinctactic) */
 package sintactic;
 import java_cup.runtime.*;
+import java_cup.ErrorManager;
 
 parser code  {: 
 	public void report_error(String message, Object info) {
-		StringBuilder errorMessage = new StringBuilder("Error ");
-
-		if(info instanceof java_cup.runtime.Symbol) 
-			errorMessage.append( "(" + info.toString()+")");
-		errorMessage.append(" : " + message);
-		System.out.println(errorMessage);
+            done_parsing();
+            if (info instanceof Symbol)
+                 ErrorManager.getManager().emit_fatal(message+ "\nCan't recover from previous error(s), giving up.",(Symbol)info);
+            else 
+                ErrorManager.getManager().emit_fatal(message + "\nCan't recover from previous error(s), giving up.",cur_token);
+            System.exit(1);
 	}
 	
 	public void report_fatal_error(String message, Object info) {
-		report_error(message, info);
-		done_
-		throw new RuntimeException("Fatal Syntax Error");
+            done_parsing();
+            if (info instanceof Symbol) ErrorManager.getManager().emit_fatal(message+ "\nCan't recover from previous error(s), giving up.",(Symbol)info);
+            else ErrorManager.getManager().emit_fatal(message + "\nCan't recover from previous error(s), giving up.",cur_token);
+            System.exit(1);
 	}
 :};
 
