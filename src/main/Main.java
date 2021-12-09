@@ -9,10 +9,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import lexic.Lexer;
 import sintactic.parser;
+import sintactic.symbols.CrotoSymbolFactory;
 
 /**
  *
@@ -22,7 +22,7 @@ public class Main {
 
     private static void lexerTester() {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        ComplexSymbolFactory symFact = new ComplexSymbolFactory();
+        CrotoSymbolFactory symFact = new CrotoSymbolFactory();
         Lexer lex = new Lexer(br, symFact);
         System.out.println("Introduce codigo:");
         while (true) {
@@ -39,7 +39,7 @@ public class Main {
     private static void sintacticTester() {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-            ComplexSymbolFactory symFact = new ComplexSymbolFactory();
+            CrotoSymbolFactory symFact = new CrotoSymbolFactory();
             Lexer lex = new Lexer(br, symFact);
             parser p = new parser(lex, symFact);
             System.out.println("Introduce codigo:");

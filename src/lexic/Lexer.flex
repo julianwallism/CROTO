@@ -3,7 +3,7 @@
 package lexic;
 
 import java_cup.runtime.Symbol;
-import java_cup.runtime.ComplexSymbolFactory;
+import sintactic.symbols.CrotoSymbolFactory;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import sintactic.sym;
 %%
@@ -19,9 +19,9 @@ import sintactic.sym;
 
 %{
     StringBuffer string = new StringBuffer();
-    ComplexSymbolFactory symbolFactory;
+    CrotoSymbolFactory symbolFactory;
 
-    public Lexer(java.io.Reader in, ComplexSymbolFactory sf){
+    public Lexer(java.io.Reader in, CrotoSymbolFactory sf){
 	this(in);
 	symbolFactory = sf;
     }
@@ -43,7 +43,7 @@ import sintactic.sym;
     }
        
     private void error(String message) {
-        System.out.println("Error at line " + (yyline+1) + ", column " + (yycolumn+1) + " : " + message);
+        System.err.println("Lexic error at line " + (yyline+1) + ", column " + (yycolumn+1) + ": " + message);    
     }
 %}
 
@@ -181,6 +181,5 @@ SingleCharacter = [^\r\n\'\\]
 }
 
 /* errors */
-[^]                         { throw new RuntimeException("Illegal character \"" + yytext() +
-                                                              "\" at line "+yyline+", column " + yycolumn); }
+[^]                         { error("Illegal Character " + yytext()); }
 <<EOF>>                     { return symbol("eof", sym.EOF); }

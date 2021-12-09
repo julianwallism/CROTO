@@ -3,11 +3,13 @@
 //----------------------------------------------------
 package sintactic;
 
+import java.util.LinkedList;
+import java.util.List;
 import java_cup.ErrorManager;
 import java_cup.runtime.*;
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import java_cup.runtime.ComplexSymbolFactory.Location;
-import java_cup.runtime.XMLElement;
+import sintactic.symbols.CrotoSymbol;
 
 /**
  * CUP v0.11b 20160615 (GIT 4ac7450) generated parser.
@@ -828,23 +830,45 @@ public class parser extends java_cup.runtime.lr_parser {
         }
     }
 
+    @Override
     public void report_error(String message, Object info) {
-        if (info instanceof ComplexSymbol) {
-            ComplexSymbol sym = (ComplexSymbol) info;
-            ErrorManager.getManager().emit_error(message, sym);
-        } else {
-            ErrorManager.getManager().emit_error(message, cur_token);
+        if (info instanceof CrotoSymbol) {
+            CrotoSymbol cs = (CrotoSymbol) info;
+            System.err.println(message + " at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn());
+        }
+    }
+    
+    public void report_error(String message, Object info, String message2) {
+        if (info instanceof CrotoSymbol) {
+            CrotoSymbol cs = (CrotoSymbol) info;
+            if (cs.value != null)
+                System.err.println(message + " at \"" + cs.value + "\" line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
+            else 
+                System.err.println(message + " at \"" + cs.getName() + "\"int line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
         }
     }
 
+    @Override
     public void report_fatal_error(String message, Object info) {
         done_parsing();
-        if (info instanceof Symbol) {
-            ErrorManager.getManager().emit_fatal(message + "\nCan't recover from previous error(s), giving up.", (Symbol) info);
-        } else {
-            ErrorManager.getManager().emit_fatal(message + "\nCan't recover from previous error(s), giving up.", cur_token);
-        }
+        report_error(message, info);
         System.exit(0);
+    }
+
+    @Override
+    public void syntax_error(Symbol cur_token) {
+        report_error("Sintax error", cur_token, expecetd_tokens_names());
+    }
+
+    @Override
+    public void unrecovered_syntax_error(Symbol cur_token) {
+        report_fatal_error("Fatal sintax error", cur_token);
+    }
+
+    protected String expecetd_tokens_names() {
+        LinkedList<String> list = new LinkedList<>();
+        for (Integer expected : expected_token_ids()) list.add(symbl_name_from_id(expected));
+        return "instead expected token are " + list;
     }
 
     /**
@@ -2312,7 +2336,6 @@ public class parser extends java_cup.runtime.lr_parser {
         }
 
         /* end of method */
-
         /**
          * Method splitting the generated action code into several parts.
          */

@@ -1,24 +1,52 @@
 /* Execution: java -jar ../../lib/cup-11b.jar -locations Syntaxer.cup (ejecutar en: /src/sinctactic) */
 package sintactic;
 import java_cup.runtime.*;
-import java_cup.ErrorManager;
+import java.util.LinkedList;
+import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
+import java_cup.runtime.ComplexSymbolFactory.Location;
+import sintactic.symbols.CrotoSymbol;
 
 parser code  {: 
-	public void report_error(String message, Object info) {
-            done_parsing();
-            if (info instanceof Symbol)
-                 ErrorManager.getManager().emit_fatal(message+ "\nCan't recover from previous error(s), giving up.",(Symbol)info);
+   @Override
+    public void report_error(String message, Object info) {
+        if (info instanceof CrotoSymbol) {
+            CrotoSymbol cs = (CrotoSymbol) info;
+            System.err.println(message + " at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn());
+        }
+    }
+    
+    public void report_error(String message, Object info, String message2) {
+        if (info instanceof CrotoSymbol) {
+            CrotoSymbol cs = (CrotoSymbol) info;
+            if (cs.value != null)
+                System.err.println(message + " at \"" + cs.value + "\" line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
             else 
-                ErrorManager.getManager().emit_fatal(message + "\nCan't recover from previous error(s), giving up.",cur_token);
-            System.exit(1);
-	}
-	
-	public void report_fatal_error(String message, Object info) {
-            done_parsing();
-            if (info instanceof Symbol) ErrorManager.getManager().emit_fatal(message+ "\nCan't recover from previous error(s), giving up.",(Symbol)info);
-            else ErrorManager.getManager().emit_fatal(message + "\nCan't recover from previous error(s), giving up.",cur_token);
-            System.exit(1);
-	}
+                System.err.println(message + " at \"" + cs.getName() + "\"int line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
+        }
+    }
+
+    @Override
+    public void report_fatal_error(String message, Object info) {
+        done_parsing();
+        report_error(message, info);
+        System.exit(0);
+    }
+
+    @Override
+    public void syntax_error(Symbol cur_token) {
+        report_error("Sintax error", cur_token, expecetd_tokens_names());
+    }
+
+    @Override
+    public void unrecovered_syntax_error(Symbol cur_token) {
+        report_fatal_error("Fatal sintax error", cur_token);
+    }
+
+    protected String expecetd_tokens_names() {
+        LinkedList<String> list = new LinkedList<>();
+        for (Integer expected : expected_token_ids()) list.add(symbl_name_from_id(expected));
+        return "instead expected token are " + list;
+    }
 :};
 
 /* Types */
