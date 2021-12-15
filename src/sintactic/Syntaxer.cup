@@ -50,15 +50,13 @@ parser code  {:
 :};
 
 /* Types */
-terminal BOOLEAN, INTEGER, CHARACTER, FLOAT;// STRING; 
+terminal BOOLEAN, INTEGER, FLOAT;
 
 /* Keywords */
 terminal IF, ELSE;
-terminal SWITCH, CASE, DEFAULT; // switch
 terminal WHILE, FOR; // loops
 terminal BREAK;
 terminal RETURN;
-terminal NEW; 
 terminal CONSTANT;
 terminal CROTOFUNC; // Functions
 
@@ -67,17 +65,14 @@ terminal ASSIGNMENT; // Assignment
 terminal ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION; // Aritmetic
 terminal EQUAL, DIFFERENT, GREATER, LOWER, GREATER_EQUAL, LOWER_EQUAL; // Comparation
 terminal AND, OR, NOT; // Logical
-terminal INCREMENT, DECREMENT;
 
 /* Other */
-terminal SEMICOLON, COMMA, COLON; // Punctuation
-terminal LPAREN, RPAREN, LBRACE, RBRACE, LBRACK, RBRACK; // Separators
+terminal SEMICOLON, COMMA; // Punctuation
+terminal LPAREN, RPAREN, LBRACE, RBRACE; // Separators
 
 terminal java.lang.Integer INTEGER_VALUE;
 terminal java.lang.Number FLOAT_VALUE;
 terminal java.lang.Boolean BOOLEAN_VALUE;
-terminal java.lang.Character CHARACTER_VALUE;
-terminal java.lang.String STRING_VALUE;
 terminal java.lang.String IDENTIFIER; // name
 
 non terminal begin;
@@ -85,7 +80,7 @@ non terminal begin;
 non terminal literal; // Modifiers
 
 /* Types */
-non terminal type, primitive_type, numeric_type, integral_type, array_type;
+non terminal type, primitive_type, numeric_type, integral_type;
 
 /* VARIABLE DECLARATIONS*/
 non terminal variable_declarators, variable_declarator, variable_declarator_id, variable_initializer;
@@ -94,47 +89,42 @@ non terminal variable_declarators, variable_declarator, variable_declarator_id, 
 non terminal method_declaration, method_header, method_declarator, method_body;
 non terminal f_parameter_list_opt, f_parameter_list, f_parameter; // Parameters
 
-/* ARRAYS */
-non terminal array_initializer, variable_initializers;
 
 /* BLOCKS AND STATEMENTS */
 non terminal block, block_statements_opt, block_statements, block_statement;
 non terminal local_variable_declaration_statement, local_variable_declaration; 
 non terminal statement, statement_with_no_trailing_substatement, statement_expression_list, expression_statement, statement_expression;
 non terminal if_statement;
-non terminal switch_statement, switch_block, switch_block_statement_groups, switch_block_statement_group, switch_labels, switch_label;
 non terminal while_statement;
 non terminal for_init, for_statement, for_updt;
 non terminal break_statement;
 non terminal return_statement;
+non terminal primary_not_array;
 
 /* EXPRESSIONS */
-non terminal primary, primary_not_array;
+non terminal primary;
 non terminal argument_list_opt, argument_list;
-non terminal array_creation_expression, dim_exprs, dim_expr, dims_opt, dims;
 non terminal method_invocation;
-non terminal array_access;
-non terminal unary_expression, preincrement_expression, predecrement_expression, postincrement_expression, postdecrement_expression, unary_expression_not_plus_minus;
+non terminal unary_expression, unary_expression_not_plus_minus;
 non terminal additive_expression, multiplicative_expression; // Aritmetic Expressions
 non terminal relational_expression;
 non terminal conditional_expression, conditional_or_expression, conditional_and_expression, equality_expression; // Conditional Expressions
 non terminal assignment_expression, assignment, left_hand_side; // Assignment
-non terminal expression_opt, expression, constant_expression;
-non terminal empty_dims, empty_dims_opt;
+non terminal expression_opt, expression;
 
 start with begin;
 
 begin ::= block_statements | method_declaration;
 
 /* Literal */
-literal ::= STRING_VALUE | INTEGER_VALUE | FLOAT_VALUE | CHARACTER_VALUE | BOOLEAN_VALUE ;
+literal ::= INTEGER_VALUE | FLOAT_VALUE | BOOLEAN_VALUE ;
 	
 /* Types */
-type ::= primitive_type | array_type ;
+type ::= primitive_type;
 primitive_type ::= numeric_type | BOOLEAN ;
 numeric_type ::= integral_type | FLOAT ;
-integral_type ::= INTEGER | CHARACTER ;
-array_type ::= primitive_type empty_dims | IDENTIFIER empty_dims ;
+integral_type ::= INTEGER ;
+
 
 /* Modifiers */
 
@@ -142,7 +132,7 @@ array_type ::= primitive_type empty_dims | IDENTIFIER empty_dims ;
 variable_declarators ::= variable_declarator | variable_declarators COMMA variable_declarator ;
 variable_declarator ::= variable_declarator_id | variable_declarator_id ASSIGNMENT variable_initializer ;
 variable_declarator_id ::= IDENTIFIER ;
-variable_initializer ::= expression | array_initializer ;
+variable_initializer ::= expression ;
 
 
 /* METHOD DECLARATIONS */
@@ -153,11 +143,6 @@ f_parameter_list_opt ::=  | f_parameter_list ;
 f_parameter_list ::= f_parameter | f_parameter_list COMMA f_parameter ;
 f_parameter ::= CONSTANT type variable_declarator_id | type variable_declarator_id ;
 method_body ::= block SEMICOLON ;
-
-
-/* ARRAYS */
-array_initializer ::= LBRACE variable_initializers COMMA RBRACE | LBRACE variable_initializers RBRACE | LBRACE COMMA RBRACE | LBRACE RBRACE ;
-variable_initializers ::= variable_initializer | variable_initializers COMMA variable_initializer ;
 
 
 /* BLOCKS AND STATEMENTS */
@@ -172,20 +157,12 @@ local_variable_declaration ::= type variable_declarators | CONSTANT type variabl
 /* Statements */
 statement ::= statement_with_no_trailing_substatement | if_statement | while_statement | for_statement ;
 statement_expression_list ::= statement_expression | statement_expression_list COMMA statement_expression ;
-statement_with_no_trailing_substatement ::= block | SEMICOLON | expression_statement | switch_statement | break_statement | return_statement ;
+statement_with_no_trailing_substatement ::= block | SEMICOLON | expression_statement | break_statement | return_statement ;
 expression_statement ::= statement_expression SEMICOLON ;
-statement_expression ::= assignment | preincrement_expression | predecrement_expression | postincrement_expression | postdecrement_expression | method_invocation ;
+statement_expression ::= assignment | method_invocation ;
 
 /* If */
 if_statement ::= IF LPAREN expression RPAREN block | IF LPAREN expression RPAREN block ELSE block ;
-
-/* Switch */ 
-switch_statement  ::= SWITCH LPAREN expression RPAREN switch_block ;
-switch_block ::= LBRACE switch_block_statement_groups switch_labels RBRACE | LBRACE switch_block_statement_groups RBRACE | LBRACE switch_labels RBRACE | LBRACE RBRACE ;
-switch_block_statement_groups ::= switch_block_statement_group | switch_block_statement_groups switch_block_statement_group ;
-switch_block_statement_group ::= switch_labels block_statements ;
-switch_labels ::= switch_label | switch_labels switch_label ;
-switch_label ::= CASE constant_expression COLON | DEFAULT COLON ; 
 
 /* While */
 while_statement ::= WHILE LPAREN expression RPAREN block ; 
@@ -200,31 +177,17 @@ break_statement ::= BREAK SEMICOLON ;
 return_statement ::= RETURN expression_opt SEMICOLON ;
 
 /* EXPRESSIONS */
-primary ::= primary_not_array | array_creation_expression ;
-primary_not_array ::= literal | LPAREN expression RPAREN | method_invocation | array_access ; 
+primary ::= primary_not_array ;
+primary_not_array ::= literal | LPAREN expression RPAREN | method_invocation; 
 
 /* Argument List */
 argument_list_opt ::= argument_list |  ;
 argument_list ::= expression | argument_list COMMA expression ;
 
-/* Array Creation */
-array_creation_expression ::= NEW primitive_type dim_exprs dims_opt | NEW primitive_type dims array_initializer ; // new int[][]{1, 3, 4}
-dim_exprs ::= dim_expr | dim_exprs dim_expr ;
-dim_expr ::= LBRACK expression RBRACK ;
-dims_opt ::= | dims ;
-dims ::= LBRACK RBRACK dims | LBRACK RBRACK ;
-
 /* Methods */
 method_invocation ::= IDENTIFIER LPAREN argument_list_opt RPAREN ;
 
-/* Arrays */ 
-array_access ::= IDENTIFIER LBRACK expression RBRACK | primary_not_array LBRACK expression RBRACK ;
-
-unary_expression ::= preincrement_expression | predecrement_expression | ADDITION unary_expression | SUBTRACTION unary_expression | unary_expression_not_plus_minus ;
-preincrement_expression ::= INCREMENT unary_expression ;
-predecrement_expression ::= DECREMENT unary_expression ;
-postincrement_expression ::= unary_expression INCREMENT ;
-postdecrement_expression ::= unary_expression DECREMENT ;
+unary_expression ::= ADDITION unary_expression | SUBTRACTION unary_expression | unary_expression_not_plus_minus ;
 unary_expression_not_plus_minus ::= NOT unary_expression ;
 
 /* Aritmetic */
@@ -243,11 +206,7 @@ equality_expression ::= relational_expression | equality_expression EQUAL relati
 /* Assignment */
 assignment_expression ::= conditional_expression | assignment | primary ;
 assignment ::= left_hand_side ASSIGNMENT assignment_expression ;
-left_hand_side ::= IDENTIFIER | array_access ;
+left_hand_side ::= IDENTIFIER ;
 
 expression_opt ::= expression |  ;
 expression ::= assignment_expression ;
-constant_expression ::= expression	;
-
-empty_dims ::= RBRACK LBRACK empty_dims_opt ;
-empty_dims_opt ::= | RBRACK LBRACK empty_dims_opt ;

@@ -2,9 +2,7 @@
      INTEGER = 0;
      FLOAT = 1;
      BOOLEAN = 2;
-     CHARACTER = 3;
      CONSTANT = 4;
-     STRING = 89;
 
     /* Keywords */
      IF = 5;
@@ -12,8 +10,6 @@
      WHILE = 7;
      FOR = 8;
      CROTOFUNC = 9;
-     SWITCH = 10;
-     CASE = 11;
      BREAK = 12;
      RETURN = 13;
      TRUE = 14;
@@ -23,10 +19,8 @@
      NOT = 18;
 
     /* Literal */
-     STRING_VALUE = 19;
      INTEGER_VALUE = 20;
      DECIMAL_VALUE = 21;
-     CHAR_VALUE = 22;
 
     /* Operators */
      ASSIGNMENT = 23;
@@ -40,8 +34,6 @@
      LOWER = 31;
      GREATER_EQUAL = 32;
      LOWER_EQUAL = 33;
-     DECREMENT = 34;
-     INCREMENT = 35;
 
      IDENTIFIER = 38;
 
@@ -53,7 +45,6 @@
      LBRACK = 43;
      RBRACK = 44;
      SEMICOLON = 45;
-     COLON = 46;
      PERIOD = 47;
      COMMA = 48;
     

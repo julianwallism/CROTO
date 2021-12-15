@@ -8,72 +8,55 @@ package sintactic;
 /** CUP generated class containing symbol constants. */
 public class sym {
   /* terminals */
-  public static final int INCREMENT = 32;
-  public static final int ASSIGNMENT = 18;
-  public static final int CASE = 9;
+  public static final int ASSIGNMENT = 13;
   public static final int INTEGER = 3;
-  public static final int LOWER = 26;
-  public static final int LPAREN = 37;
-  public static final int GREATER = 25;
-  public static final int FLOAT_VALUE = 44;
-  public static final int FOR = 12;
-  public static final int DECREMENT = 33;
-  public static final int RPAREN = 38;
-  public static final int CHARACTER = 4;
-  public static final int NOT = 31;
-  public static final int SEMICOLON = 34;
-  public static final int AND = 29;
-  public static final int OR = 30;
-  public static final int COMMA = 35;
-  public static final int DIFFERENT = 24;
-  public static final int SUBTRACTION = 20;
-  public static final int IF = 6;
+  public static final int LOWER = 21;
+  public static final int LPAREN = 29;
+  public static final int GREATER = 20;
+  public static final int FLOAT_VALUE = 34;
+  public static final int FOR = 8;
+  public static final int RPAREN = 30;
+  public static final int NOT = 26;
+  public static final int SEMICOLON = 27;
+  public static final int AND = 24;
+  public static final int OR = 25;
+  public static final int COMMA = 28;
+  public static final int DIFFERENT = 19;
+  public static final int SUBTRACTION = 15;
+  public static final int IF = 5;
   public static final int EOF = 0;
   public static final int BOOLEAN = 2;
-  public static final int RETURN = 14;
-  public static final int EQUAL = 23;
-  public static final int GREATER_EQUAL = 27;
-  public static final int NEW = 15;
+  public static final int RETURN = 10;
+  public static final int EQUAL = 18;
+  public static final int GREATER_EQUAL = 22;
   public static final int error = 1;
-  public static final int BREAK = 13;
-  public static final int CONSTANT = 16;
-  public static final int CROTOFUNC = 17;
-  public static final int LBRACK = 41;
-  public static final int SWITCH = 8;
-  public static final int BOOLEAN_VALUE = 45;
-  public static final int COLON = 36;
-  public static final int STRING_VALUE = 47;
-  public static final int LBRACE = 39;
-  public static final int ELSE = 7;
-  public static final int RBRACK = 42;
-  public static final int WHILE = 11;
-  public static final int ADDITION = 19;
-  public static final int DEFAULT = 10;
-  public static final int FLOAT = 5;
-  public static final int RBRACE = 40;
-  public static final int LOWER_EQUAL = 28;
-  public static final int CHARACTER_VALUE = 46;
-  public static final int DIVISION = 22;
-  public static final int INTEGER_VALUE = 43;
-  public static final int MULTIPLICATION = 21;
-  public static final int IDENTIFIER = 48;
+  public static final int BREAK = 9;
+  public static final int CONSTANT = 11;
+  public static final int CROTOFUNC = 12;
+  public static final int BOOLEAN_VALUE = 35;
+  public static final int LBRACE = 31;
+  public static final int ELSE = 6;
+  public static final int WHILE = 7;
+  public static final int ADDITION = 14;
+  public static final int FLOAT = 4;
+  public static final int RBRACE = 32;
+  public static final int LOWER_EQUAL = 23;
+  public static final int DIVISION = 17;
+  public static final int INTEGER_VALUE = 33;
+  public static final int MULTIPLICATION = 16;
+  public static final int IDENTIFIER = 36;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
   "BOOLEAN",
   "INTEGER",
-  "CHARACTER",
   "FLOAT",
   "IF",
   "ELSE",
-  "SWITCH",
-  "CASE",
-  "DEFAULT",
   "WHILE",
   "FOR",
   "BREAK",
   "RETURN",
-  "NEW",
   "CONSTANT",
   "CROTOFUNC",
   "ASSIGNMENT",
@@ -90,22 +73,15 @@ public class sym {
   "AND",
   "OR",
   "NOT",
-  "INCREMENT",
-  "DECREMENT",
   "SEMICOLON",
   "COMMA",
-  "COLON",
   "LPAREN",
   "RPAREN",
   "LBRACE",
   "RBRACE",
-  "LBRACK",
-  "RBRACK",
   "INTEGER_VALUE",
   "FLOAT_VALUE",
   "BOOLEAN_VALUE",
-  "CHARACTER_VALUE",
-  "STRING_VALUE",
   "IDENTIFIER"
   };
 }

@@ -84,16 +84,12 @@ SingleCharacter = [^\r\n\'\\]
     "int"                   { return symbol("int", sym.INTEGER); }
     "float"                 { return symbol("float", sym.FLOAT); }
     "bool"                  { return symbol("bool", sym.BOOLEAN); }
-    "char"                  { return symbol("char" , sym.CHARACTER); }
     "const"                 { return symbol("const" , sym.CONSTANT); }
-    //"string"                { return symbol(STRING); }
     "if"                    { return symbol("if", sym.IF); }
     "else"                  { return symbol("else", sym.ELSE); }
     "while"                 { return symbol("while",sym.WHILE); }
     "for"                   { return symbol("for", sym.FOR); }
     "crotofunc"             { return symbol("function", sym.CROTOFUNC); }
-    "switch"                { return symbol("switch", sym.SWITCH); }
-    "case"                  { return symbol("case", sym.CASE); }
     "break"                 { return symbol("break", sym.BREAK); }
     "return"                { return symbol("return", sym.RETURN); }
     "and"                   { return symbol("and", sym.AND); }
@@ -125,11 +121,6 @@ SingleCharacter = [^\r\n\'\\]
     ";"                     { return symbol(";", sym.SEMICOLON); }
     ","                     { return symbol(",", sym.COMMA); }
 
-    /* string literal */
-    \"                      { yybegin(STRING); string.setLength(0); }
-
-    /* character literal */
-    \'                      { yybegin(CHARLITERAL); }
 
     /* numeric literals */
     {DecIntegerLiteral}     { return symbol("integer value", sym.INTEGER_VALUE, Integer.valueOf(yytext())); }
@@ -145,40 +136,7 @@ SingleCharacter = [^\r\n\'\\]
     {Identifier}            { return symbol("id", sym.IDENTIFIER, yytext()); }  
 }
 
-<STRING> {
-  \"                        { yybegin(YYINITIAL); return symbol("string value", sym.STRING_VALUE, string.toString()); }
-  {StringCharacter}+             { string.append( yytext() ); }
-  
-  /* escape sequences */
-  "\\b"                     { string.append( '\b' ); }
-  "\\t"                     { string.append( '\t' ); }
-  "\\n"                     { string.append( '\n' ); }
-  "\\f"                     { string.append( '\f' ); }
-  "\\r"                     { string.append( '\r' ); }
-  "\\\""                    { string.append( '\"' ); }
-  "\\'"                     { string.append( '\'' ); }
-  "\\\\"                    { string.append( '\\' ); }
-  
-  \\.                       { throw new RuntimeException("Illegal escape sequence \"" + yytext() + "\""); }
-  {LineTerminator}          { throw new RuntimeException("Unterminated string at end of line"); }
-}
 
-<CHARLITERAL> {
-  {SingleCharacter}\'       { yybegin(YYINITIAL); return symbol("char velue", sym.CHARACTER_VALUE, yytext().charAt(0)); }
-  
-  /* escape sequences */
-  "\\b"\'                   { yybegin(YYINITIAL); return symbol("\\b", sym.CHARACTER_VALUE, '\b');}
-  "\\t"\'                   { yybegin(YYINITIAL); return symbol("\\t", sym.CHARACTER_VALUE, '\t');}
-  "\\n"\'                   { yybegin(YYINITIAL); return symbol("\\n", sym.CHARACTER_VALUE, '\n');}
-  "\\f"\'                   { yybegin(YYINITIAL); return symbol("\\f", sym.CHARACTER_VALUE, '\f');}
-  "\\r"\'                   { yybegin(YYINITIAL); return symbol("\\r", sym.CHARACTER_VALUE, '\r');}
-  //"\\\""\'                  { yybegin(YYINITIAL); return symbol("\\\"", sym.CHARACTER_VALUE, '\"');}
-  "\\'"\'                   { yybegin(YYINITIAL); return symbol("\\'", sym.CHARACTER_VALUE, '\'');}
-  //"\\\\"\'                  { yybegin(YYINITIAL); return symbol("\\\\, sym.CHARACTER_VALUE, '\\'); }
-  
-  \\.                       { throw new RuntimeException("Illegal escape sequence \"" + yytext() + "\""); }
-  {LineTerminator}          { throw new RuntimeException("Unterminated character literal at end of line"); }
-}
 
 /* errors */
 [^]                         { error("Illegal Character " + yytext()); }
