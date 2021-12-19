@@ -1,23 +1,39 @@
 package semantic;
 
-import java.util.HashMap;
-import java_cup.runtime.Symbol;
-
 /**
  *
  * @author sanso
  */
 public class TaulaSimbols {
+
+    public Taula taulaNivellActual;
+    public int nivell = 0;
+    public TaulaSimbols() {
+        this.taulaNivellActual = new Taula();
+    }
     
-    public Integer n;
-    public HashMap<Integer,Symbol> taulaAmbits;
-    public HashMap<String,Symbol> taulaExpansio;
-    public HashMap<String,Symbol> taulaDescripcio;
-    public Symbol s;
-    public TaulaSimbols(){
-        taulaAmbits = new HashMap<>();
-        taulaExpansio = new HashMap<>();
-        taulaDescripcio = new HashMap<>();
+    public void entrarBloc(){
+        nivell++;
+        Taula aux = new Taula(this.taulaNivellActual);
+        this.taulaNivellActual = aux;
+    }
+    
+    public void sortirBloc(){
+        nivell--;
+        this.taulaNivellActual = this.taulaNivellActual.taulaPare;
+    }
+    
+    public void inserir(String id, Descripcio d){
+        this.taulaNivellActual.insereix(id, d);
+    }
+    
+    public Descripcio cercar(String id){
+        Descripcio aux = this.taulaNivellActual.cerca(id);
+        Taula iterador = this.taulaNivellActual;
+        while(aux==null && iterador != null){
+            iterador = this.taulaNivellActual.taulaPare;
+            aux = iterador.cerca(id);
+        }
+        return aux;
     }
 }
-
