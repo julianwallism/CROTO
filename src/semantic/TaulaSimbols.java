@@ -9,7 +9,7 @@ public class TaulaSimbols {
     public Taula taulaNivellActual;
     public int nivell = 0;
     public TaulaSimbols() {
-        this.taulaNivellActual = new Taula();
+        this.taulaNivellActual = new Taula(null);
     }
     
     public void entrarBloc(){
@@ -31,7 +31,7 @@ public class TaulaSimbols {
         Descripcio aux = this.taulaNivellActual.cerca(id);
         Taula iterador = this.taulaNivellActual;
         while(aux==null && iterador != null){
-            iterador = this.taulaNivellActual.taulaPare;
+            iterador = iterador.taulaPare;
             aux = iterador.cerca(id);
         }
         return aux;

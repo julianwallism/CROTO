@@ -22,4 +22,9 @@ public class Descripcio {
     public int getOcupacio(){
         return this.ocupacio;
     }
+    
+    @Override
+    public String toString(){
+        return ""+tipus.toString()+", "+this.ocupacio;
+    }
 }

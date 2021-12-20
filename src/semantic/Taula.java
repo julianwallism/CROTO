@@ -12,11 +12,7 @@ import java.util.HashMap;
 public class Taula {
     public HashMap<String,Descripcio> taula;
     public Taula taulaPare;
-    
-    public Taula(){
-        this.taula = new HashMap<>();
-    }
-    
+        
     public Taula(Taula taulaPare){
         this.taulaPare = taulaPare;
         this.taula = new HashMap<>();
