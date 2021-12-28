@@ -62,16 +62,7 @@ CommentContent       = ( [^*] | \*+ [^/*] )*
 Identifier = [:jletter:] [:jletterdigit:]*
 
 DecIntegerLiteral = 0 | [1-9][0-9]*
-FloatLiteral  = ({FLit1}|{FLit2}|{FLit3}) {Exponent}? [fF]
-FLit1    = [0-9]+ \. [0-9]* 
-FLit2    = \. [0-9]+ 
-FLit3    = [0-9]+ 
-Exponent = [eE] [+-]? [0-9]+
 
-StringCharacter = [^\r\n\"\\]
-SingleCharacter = [^\r\n\'\\]
-
-%state STRING, CHARLITERAL
 
 %%
 
@@ -108,23 +99,18 @@ SingleCharacter = [^\r\n\'\\]
     "<"                     { return symbol("<", sym.LOWER); }
     ">="                    { return symbol(">=", sym.GREATER_EQUAL); }
     "<="                    { return symbol("<=", sym.GREATER_EQUAL); }
-    "--"                    { return symbol("--", sym.DECREMENT); }
-    "++"                    { return symbol("++", sym.INCREMENT); }
 
     /* separators */
     "("                     { return symbol("(", sym.LPAREN); }
     ")"                     { return symbol(")", sym.RPAREN); }
     "{"                     { return symbol("{", sym.LBRACE); }
     "}"                     { return symbol("}", sym.RBRACE); }
-    "["                     { return symbol("[", sym.LBRACK); }
-    "]"                     { return symbol("]", sym.RBRACK); }
     ";"                     { return symbol(";", sym.SEMICOLON); }
     ","                     { return symbol(",", sym.COMMA); }
 
 
     /* numeric literals */
     {DecIntegerLiteral}     { return symbol("integer value", sym.INTEGER_VALUE, Integer.valueOf(yytext())); }
-    {FloatLiteral}          { return symbol("float value", sym.FLOAT_VALUE, Float.parseFloat(yytext().substring(0,yylength() - 1))); }
 
     /* comments */
     {Comment}               { /* ignore */ }
