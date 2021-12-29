@@ -1,0 +1,170 @@
+/* Execution: java -jar ../../lib/cup-11b.jar -locations ../../cup/Grammar.cup (ejecutar en: /src/sinctactic) */
+package sintactic;
+import java_cup.runtime.*;
+import java.util.LinkedList;
+import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
+import java_cup.runtime.ComplexSymbolFactory.Location;
+import sintactic.symbols.CrotoSymbol;
+
+parser code  {: 
+   @Override
+    public void report_error(String message, Object info) {
+        if (info instanceof CrotoSymbol) {
+            CrotoSymbol cs = (CrotoSymbol) info;
+            System.err.println(message + " at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn());
+        }
+    }
+    
+    public void report_error(String message, Object info, String message2) {
+        if (info instanceof CrotoSymbol) {
+            CrotoSymbol cs = (CrotoSymbol) info;
+            if (cs.value != null)
+                System.err.println(message + " at \"" + cs.value + "\" line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
+            else 
+                System.err.println(message + " at \"" + cs.getName() + "\"int line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
+        }
+    }
+
+    @Override
+    public void report_fatal_error(String message, Object info) {
+        done_parsing();
+        report_error(message, info);
+        System.exit(0);
+    }
+
+    @Override
+    public void syntax_error(Symbol cur_token) {
+        report_error("Sintax error", cur_token, expecetd_tokens_names());
+    }
+
+    @Override
+    public void unrecovered_syntax_error(Symbol cur_token) {
+        report_fatal_error("Fatal sintax error", cur_token);
+    }
+
+    protected String expecetd_tokens_names() {
+        LinkedList<String> list = new LinkedList<>();
+        for (Integer expected : expected_token_ids()) list.add(symbl_name_from_id(expected));
+        return "instead expected token are " + list;
+    }
+:};
+
+/* Types */
+terminal BOOLEAN, INTEGER;
+
+/* Keywords */
+terminal IF, ELSE;
+terminal WHILE; // loops
+terminal BREAK;
+terminal RETURN;
+terminal CONSTANT;
+terminal CROTOFUNC; // Functions
+terminal MAIN;
+
+/* Operators */
+terminal ASSIGNMENT; // Assignment
+terminal ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION; // Aritmetic
+terminal EQUAL, DIFFERENT, GREATER, LOWER, GREATER_EQUAL, LOWER_EQUAL; // Comparation
+terminal AND, OR, NOT; // Logical
+
+/* Other */
+terminal SEMICOLON, COMMA; // Punctuation
+terminal LPAREN, RPAREN, LBRACE, RBRACE; // Separators
+
+terminal java.lang.Integer INTEGER_VALUE;
+terminal java.lang.Boolean BOOLEAN_VALUE;
+terminal java.lang.String IDENTIFIER;
+
+non terminal program;
+non terminal main;
+non terminal methods, method;
+non terminal param_list, param;
+non terminal type, id, literal;
+non terminal code_block;
+non terminal var_declaration, assigment_expr;
+non terminal expression, boolean_expression, expression_list;
+non terminal statement, if_statement;
+non terminal declaration_statements;
+
+precedence nonassoc ASSIGNMENT;
+precedence left     OR;
+precedence left     AND;
+precedence left     EQUAL, DIFFERENT, GREATER, LOWER, GREATER_EQUAL, LOWER_EQUAL;
+precedence left     ADDITION, SUBTRACTION;
+precedence left     MULTIPLICATION, DIVISION;
+precedence right    NOT;
+
+start with program;
+
+program ::= main 
+            | methods main;
+
+main ::=  CROTOFUNC MAIN LPAREN RPAREN LBRACE code_block RBRACE 
+            | CROTOFUNC MAIN LPAREN param_list RPAREN LBRACE code_block RBRACE;
+
+methods ::=  methods method 
+            | method;
+method ::= CROTOFUNC id LPAREN RPAREN LBRACE code_block RBRACE 
+            | CROTOFUNC type id LPAREN RPAREN LBRACE code_block RBRACE 
+            | CROTOFUNC id LPAREN param_list RPAREN LBRACE code_block RBRACE
+            | CROTOFUNC type id LPAREN param_list RPAREN LBRACE code_block RBRACE;
+
+param_list ::= param 
+                | param_list COMMA param;
+param ::= type id;
+
+
+type ::= BOOLEAN 
+                | INTEGER;
+id ::= IDENTIFIER;
+literal ::= INTEGER_VALUE 
+                | BOOLEAN_VALUE;
+
+code_block ::= | declaration_statements;
+
+declaration_statements ::= declaration_statements var_declaration | declaration_statements statement;
+
+var_declaration ::= CONSTANT type id SEMICOLON 
+                | CONSTANT type id assigment_expr SEMICOLON 
+                | type id SEMICOLON 
+                | type id assigment_expr SEMICOLON ;
+assigment_expr ::= ASSIGNMENT expression;
+
+expression ::= expression ADDITION expression
+                | expression SUBTRACTION expression
+                | expression MULTIPLICATION expression
+                | expression DIVISION expression
+                | LPAREN expression RPAREN
+                | boolean_expression
+                | id
+                | id LPAREN expression_list RPAREN
+                | id LPAREN RPAREN
+                | literal
+                | error;
+
+boolean_expression ::= expression EQUAL expression
+                | expression DIFFERENT expression
+                | expression GREATER expression
+                | expression LOWER expression
+                | expression GREATER_EQUAL expression
+                | expression LOWER_EQUAL expression
+                | expression AND expression
+                | expression OR expression
+                | NOT expression;
+
+expression_list ::= expression_list COMMA expression | expression;
+
+statement ::= id ASSIGNMENT expression SEMICOLON 
+                | id LPAREN RPAREN SEMICOLON 
+                | id LPAREN expression_list RPAREN SEMICOLON
+                | if_statement
+                | WHILE LPAREN expression RPAREN LBRACE code_block RBRACE
+                | RETURN SEMICOLON 
+                | RETURN expression SEMICOLON 
+                | BREAK SEMICOLON
+                | error;
+
+
+if_statement ::= IF LPAREN expression RPAREN LBRACE code_block RBRACE
+                | IF LPAREN expression RPAREN LBRACE code_block RBRACE ELSE if_statement
+                | IF LPAREN expression RPAREN LBRACE code_block RBRACE ELSE LBRACE code_block RBRACE ;
