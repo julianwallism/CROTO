@@ -5,6 +5,7 @@
 package main;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
@@ -38,11 +39,11 @@ public class Main {
 
     private static void sintacticTester() {
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            FileReader fr = new FileReader("Test.croto");
+            BufferedReader br = new BufferedReader(fr);
             CrotoSymbolFactory symFact = new CrotoSymbolFactory();
             Lexer lex = new Lexer(br, symFact);
             parser p = new parser(lex, symFact);
-            System.out.println("Introduce codigo:");
             p.parse();
         } catch (Exception ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);

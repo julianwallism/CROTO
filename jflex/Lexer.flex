@@ -5,7 +5,7 @@ package lexic;
 import java_cup.runtime.Symbol;
 import sintactic.symbols.CrotoSymbolFactory;
 import java_cup.runtime.ComplexSymbolFactory.Location;
-import sintactic.sym;
+import sintactic.symbols.sym;
 %%
 
 /* Options and declarations */
@@ -62,14 +62,13 @@ CommentContent       = ( [^*] | \*+ [^/*] )*
 Identifier = [:jletter:] [:jletterdigit:]*
 
 DecIntegerLiteral = 0 | [1-9][0-9]*
+/*
 FloatLiteral  = ({FLit1}|{FLit2}|{FLit3}) {Exponent}? [fF]
 FLit1    = [0-9]+ \. [0-9]* 
 FLit2    = \. [0-9]+ 
 FLit3    = [0-9]+ 
-Exponent = [eE] [+-]? [0-9]+
+Exponent = [eE] [+-]? [0-9]+ */
 
-StringCharacter = [^\r\n\"\\]
-SingleCharacter = [^\r\n\'\\]
 
 %state STRING, CHARLITERAL
 
@@ -87,16 +86,16 @@ SingleCharacter = [^\r\n\'\\]
     "if"                    { return symbol("if", sym.IF); }
     "else"                  { return symbol("else", sym.ELSE); }
     "while"                 { return symbol("while",sym.WHILE); }
-    "for"                   { return symbol("for", sym.FOR); }
+//    "for"                   { return symbol("for", sym.FOR); }
     "crotofunc"             { return symbol("function", sym.CROTOFUNC); }
     "break"                 { return symbol("break", sym.BREAK); }
     "return"                { return symbol("return", sym.RETURN); }
     "and"                   { return symbol("and", sym.AND); }
     "or"                    { return symbol("or", sym.OR); }
     "not"                   { return symbol("not", sym.NOT); }
-    "True"                  { return symbol("True", sym.BOOLEAN_VALUE, true)}
-    "False"                 { return symbol("False", sym.BOOLEAN_VALUE, false)}
-    "main"                  { return symbol("main", sym.MAIN)}
+    "True"                  { return symbol("True", sym.BOOLEAN_VALUE, true); }
+    "False"                 { return symbol("False", sym.BOOLEAN_VALUE, false); }
+    "main"                  { return symbol("main", sym.MAIN); }
 
     /* operators */
     "="                     { return symbol("=", sym.ASSIGNMENT); }
@@ -110,23 +109,21 @@ SingleCharacter = [^\r\n\'\\]
     "<"                     { return symbol("<", sym.LOWER); }
     ">="                    { return symbol(">=", sym.GREATER_EQUAL); }
     "<="                    { return symbol("<=", sym.GREATER_EQUAL); }
-    "--"                    { return symbol("--", sym.DECREMENT); }
-    "++"                    { return symbol("++", sym.INCREMENT); }
 
     /* separators */
     "("                     { return symbol("(", sym.LPAREN); }
     ")"                     { return symbol(")", sym.RPAREN); }
     "{"                     { return symbol("{", sym.LBRACE); }
     "}"                     { return symbol("}", sym.RBRACE); }
-    "["                     { return symbol("[", sym.LBRACK); }
-    "]"                     { return symbol("]", sym.RBRACK); }
+//    "["                     { return symbol("[", sym.LBRACK); }
+//    "]"                     { return symbol("]", sym.RBRACK); }
     ";"                     { return symbol(";", sym.SEMICOLON); }
     ","                     { return symbol(",", sym.COMMA); }
 
 
     /* numeric literals */
     {DecIntegerLiteral}     { return symbol("integer value", sym.INTEGER_VALUE, Integer.valueOf(yytext())); }
-    {FloatLiteral}          { return symbol("float value", sym.FLOAT_VALUE, Float.parseFloat(yytext().substring(0,yylength() - 1))); }
+    //{FloatLiteral}          { return symbol("float value", sym.FLOAT_VALUE, Float.parseFloat(yytext().substring(0,yylength() - 1))); }
 
     /* comments */
     {Comment}               { /* ignore */ }

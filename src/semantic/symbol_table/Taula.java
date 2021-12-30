@@ -1,7 +1,7 @@
 /*
  * @author sanso
  */
-package semantic;
+package semantic.symbol_table;
 
 import java.util.HashMap;
 

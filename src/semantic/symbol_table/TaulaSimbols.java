@@ -1,4 +1,4 @@
-package semantic;
+package semantic.symbol_table;
 
 /**
  *

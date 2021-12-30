@@ -1,0 +1,21 @@
+crotofunc int factorial(int a){
+	int res;
+	int i = 1;
+	while(i <= a){
+		res = res * i;
+	}
+	return res;
+}
+
+crotofunc int suma(int a, int b){
+	return a + b;
+}
+
+crotofunc main(){
+	int t, c;
+	bool b = True;
+	int fac = factorial(4);
+	if(b){
+		int sol = suma(fac, 2);
+	}
+}

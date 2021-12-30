@@ -1,7 +1,9 @@
 /*
  * @author sanso
  */
-package semantic;
+package semantic.symbol_table;
+
+import semantic.symbol_table.TipusSubjacentBasic;
 
 /**
  *

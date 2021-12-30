@@ -12,7 +12,7 @@ import java_cup.runtime.Symbol;
  *
  * @author elsho
  */
-public class CrotoSymbol extends ComplexSymbol{
+public class CrotoSymbol extends ComplexSymbol {
 
     public CrotoSymbol(String name, int id) {
         super(name, id);
@@ -42,7 +42,8 @@ public class CrotoSymbol extends ComplexSymbol{
         super(name, id, left, value);
     }
 
-    public CrotoSymbol(String name, int id, ComplexSymbolFactory.Location left, ComplexSymbolFactory.Location right, Object value) {
+    public CrotoSymbol(String name, int id, ComplexSymbolFactory.Location left, ComplexSymbolFactory.Location right,
+            Object value) {
         super(name, id, left, right, value);
     }
 

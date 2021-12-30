@@ -1,10 +1,13 @@
 /* Execution: java -jar ../../lib/cup-11b.jar -locations ../../cup/Grammar.cup (ejecutar en: /src/sinctactic) */
 package sintactic;
+
 import java_cup.runtime.*;
 import java.util.LinkedList;
+import java.util.ArrayList;
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import sintactic.symbols.CrotoSymbol;
+import semantic.symbols.*;
 
 parser code  {: 
    @Override
@@ -19,9 +22,9 @@ parser code  {:
         if (info instanceof CrotoSymbol) {
             CrotoSymbol cs = (CrotoSymbol) info;
             if (cs.value != null)
-                System.err.println(message + " at \"" + cs.value + "\" line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
+                System.err.println(message + " at \"" + cs.value + "\" at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
             else 
-                System.err.println(message + " at \"" + cs.getName() + "\"int line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
+                System.err.println(message + " at \"" + cs.getName() + "\" at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
         }
     }
 
@@ -75,16 +78,21 @@ terminal java.lang.Integer INTEGER_VALUE;
 terminal java.lang.Boolean BOOLEAN_VALUE;
 terminal java.lang.String IDENTIFIER;
 
-non terminal program;
-non terminal main;
-non terminal methods, method;
-non terminal param_list, param;
-non terminal type, id, literal;
-non terminal code_block;
-non terminal var_declaration, assigment_expr;
-non terminal expression, boolean_expression, expression_list;
-non terminal statement, if_statement;
-non terminal declaration_statements;
+non terminal Program                        program;
+non terminal Method                         main;
+non terminal ArrayList<Method>              methods;
+non terminal Method                         method;
+non terminal ArrayList<Method.Parameter>    param_list;
+non terminal Method.Parameter               param;
+non terminal Type                           type;
+non terminal Identifier                     id;
+non terminal CodeBlock                      code_block;
+non terminal VarDeclaration                 var_declaration;
+non terminal Expression                     expression, boolean_expression, literal;
+non terminal ArrayList<Expression>          expression_list;
+non terminal Statement                      statement;
+non terminal Statement.If                   if_statement;
+non terminal DeclarationStatements          declaration_statements;
 
 precedence nonassoc ASSIGNMENT;
 precedence left     OR;
@@ -96,78 +104,140 @@ precedence right    NOT;
 
 start with program;
 
-program ::= main 
-            | methods main;
+program         ::= main:m 
+                    {: RESULT = new Program(m); :}
+                | methods:ms main:m 
+                    {: RESULT = new Program(m, ms); :};
 
-main ::=  CROTOFUNC MAIN LPAREN RPAREN LBRACE code_block RBRACE 
-            | CROTOFUNC MAIN LPAREN param_list RPAREN LBRACE code_block RBRACE;
+main            ::= CROTOFUNC MAIN LPAREN RPAREN LBRACE code_block:cb RBRACE 
+                    {: RESULT = new Method(new Identifier("main"), cb, cbxleft.getLine(), cbxleft.getColumn()); :};
 
-methods ::=  methods method 
-            | method;
-method ::= CROTOFUNC id LPAREN RPAREN LBRACE code_block RBRACE 
-            | CROTOFUNC type id LPAREN RPAREN LBRACE code_block RBRACE 
-            | CROTOFUNC id LPAREN param_list RPAREN LBRACE code_block RBRACE
-            | CROTOFUNC type id LPAREN param_list RPAREN LBRACE code_block RBRACE;
+methods         ::= method:m 
+                    {: RESULT = new ArrayList<Method>(); RESULT.add(m); :}
+                | methods:ms method:m 
+                    {: RESULT = ms; ms.add(m);:};
 
-param_list ::= param 
-                | param_list COMMA param;
-param ::= type id;
+method          ::= CROTOFUNC id:id LPAREN RPAREN LBRACE code_block:cb RBRACE 
+                    {: RESULT = new Method(id, cb, idxleft.getLine(), idxleft.getColumn()); :}
+                | CROTOFUNC type:t id:id LPAREN RPAREN LBRACE code_block:cb RBRACE 
+                    {: RESULT = new Method(t,id, cb, idxleft.getLine(), idxleft.getColumn()); :}
+                | CROTOFUNC id:id LPAREN param_list:pl RPAREN LBRACE code_block:cb RBRACE 
+                    {: RESULT = new Method(id, pl, cb, idxleft.getLine(), idxleft.getColumn()); :}
+                | CROTOFUNC type:t id:id LPAREN param_list:pl RPAREN LBRACE code_block:cb RBRACE 
+                    {: RESULT = new Method(t,id, pl, cb, idxleft.getLine(), idxleft.getColumn()); :};
 
+param_list      ::= param:p 
+                    {: RESULT = new ArrayList<Method.Parameter>(); RESULT.add(p);:}
+                | param_list:pl COMMA param:p 
+                    {: RESULT = pl; pl.add(p); :};
 
-type ::= BOOLEAN 
-                | INTEGER;
-id ::= IDENTIFIER;
-literal ::= INTEGER_VALUE 
-                | BOOLEAN_VALUE;
+param           ::= type:t id:id
+                    {: RESULT = new Method.Parameter(t,id,txleft.getLine(),txleft.getColumn()); :};
 
-code_block ::= | declaration_statements;
+type            ::= BOOLEAN 
+                    {: RESULT = Type.BOOLEAN; :}
+                | INTEGER
+                    {: RESULT = Type.INTEGER; :};
 
-declaration_statements ::= declaration_statements var_declaration 
-                | declaration_statements statement 
-                | var_declaration 
-                | statement;
+id              ::= IDENTIFIER:id
+                    {: RESULT = new Identifier(id, idxleft.getLine(), idxleft.getColumn()); :};
 
-var_declaration ::= CONSTANT type id SEMICOLON 
-                | CONSTANT type id assigment_expr SEMICOLON 
-                | type id SEMICOLON 
-                | type id assigment_expr SEMICOLON ;
-assigment_expr ::= ASSIGNMENT expression;
+literal         ::= INTEGER_VALUE:val 
+                    {: RESULT = new Expression.Literal(Type.INTEGER, val, valxleft.getLine(), valxleft.getColumn()); :}
+                | BOOLEAN_VALUE:val
+                    {: RESULT = new Expression.Literal(Type.BOOLEAN, val, valxleft.getLine(), valxleft.getColumn()); :};
 
-expression ::= expression ADDITION expression
-                | expression SUBTRACTION expression
-                | expression MULTIPLICATION expression
-                | expression DIVISION expression
-                | LPAREN expression RPAREN
-                | boolean_expression
-                | id
-                | id LPAREN expression_list RPAREN
-                | id LPAREN RPAREN
-                | literal
+code_block      ::= 
+                    {: RESULT = new CodeBlock();:}
+                | declaration_statements:ds 
+                    {: RESULT = new CodeBlock(ds,dsxleft.getLine(),dsxleft.getColumn());:};
+
+declaration_statements ::= declaration_statements:ds var_declaration:d 
+                    {: RESULT = ds; ds. addDeclaration(d);:}
+                | declaration_statements:ds statement:s
+                    {: RESULT = ds; ds.addStatement(s);:}
+                | var_declaration:d  
+                    {: RESULT = new DeclarationStatements(); RESULT.addDeclaration(d);:}
+                | statement:s 
+                    {:  RESULT = new DeclarationStatements(); RESULT.addStatement(s);:};
+
+var_declaration ::= CONSTANT type:t id:id SEMICOLON
+                    {: RESULT = new VarDeclaration(true, t, id, txleft.getLine(), txleft.getColumn()); :}
+                | CONSTANT type:t id:id ASSIGNMENT expression:e SEMICOLON 
+                    {: RESULT = new VarDeclaration(true, t, id, e, txleft.getLine(), txleft.getColumn()); :}
+                | type:t id:id SEMICOLON 
+                    {: RESULT = new VarDeclaration(false, t, id, txleft.getLine(), txleft.getColumn()); :}
+                | type:t id:id ASSIGNMENT expression:e SEMICOLON 
+                    {: RESULT = new VarDeclaration(false, t, id, e, txleft.getLine(), txleft.getColumn()); :};
+
+expression      ::= expression:el ADDITION expression:er
+                    {: RESULT = new Expression.Arithmetic(el, er, Expression.Arithmetic.Type.ADDITION, elxleft.getLine(), elxleft.getColumn()); :}
+                | expression:el SUBTRACTION expression:er
+                    {: RESULT = new Expression.Arithmetic(el, er, Expression.Arithmetic.Type.SUBTRACTION, elxleft.getLine(), elxleft.getColumn()); :}
+                | expression:el MULTIPLICATION expression:er
+                    {: RESULT = new Expression.Arithmetic(el, er, Expression.Arithmetic.Type.MULTIPLICATION, elxleft.getLine(), elxleft.getColumn()); :}
+                | expression:el DIVISION expression:er
+                    {: RESULT = new Expression.Arithmetic(el, er, Expression.Arithmetic.Type.DIVISION, elxleft.getLine(), elxleft.getColumn()); :}
+                | LPAREN expression:e RPAREN
+                    {: RESULT = new Expression(exleft.getLine(), exright.getColumn()); :} //BRUH ARREGLAR
+                | boolean_expression:b 
+                    {: RESULT = b; :}
+                | id:id
+                    {: RESULT = new Expression.Id(id, idxleft.getLine(), idxleft.getColumn()); :}
+                | id:id LPAREN expression_list:args RPAREN
+                    {: RESULT = new Expression.FunctionCall(id, args, idxleft.getLine(), idxleft.getColumn()); :}
+                | id:id LPAREN RPAREN
+                    {: RESULT = new Expression.FunctionCall(id, idxleft.getLine(), idxleft.getColumn()); :}
+                | literal:l
+                    {: RESULT = l; :}
                 | error;
 
-boolean_expression ::= expression EQUAL expression
-                | expression DIFFERENT expression
-                | expression GREATER expression
-                | expression LOWER expression
-                | expression GREATER_EQUAL expression
-                | expression LOWER_EQUAL expression
-                | expression AND expression
-                | expression OR expression
-                | NOT expression;
+boolean_expression ::= expression:el EQUAL expression:er
+                    {:RESULT = new Expression.Boolean(el, er, Expression.Boolean.Type.EQUAL, elxleft.getLine(), elxleft.getColumn()); :}
+                | expression:el DIFFERENT expression:er
+                    {:RESULT = new Expression.Boolean(el, er, Expression.Boolean.Type.DIFFERENT, elxleft.getLine(), elxleft.getColumn()); :}
+                | expression:el GREATER expression:er
+                    {:RESULT = new Expression.Boolean(el, er, Expression.Boolean.Type.GREATER, elxleft.getLine(), elxleft.getColumn()); :}
+                | expression:el LOWER expression:er
+                    {:RESULT = new Expression.Boolean(el, er, Expression.Boolean.Type.LOWER, elxleft.getLine(), elxleft.getColumn()); :}
+                | expression:el GREATER_EQUAL expression:er
+                    {:RESULT = new Expression.Boolean(el, er, Expression.Boolean.Type.GREATER_EQUAL, elxleft.getLine(), elxleft.getColumn()); :}
+                | expression:el LOWER_EQUAL expression:er
+                    {:RESULT = new Expression.Boolean(el, er, Expression.Boolean.Type.LOWER_EQUAL, elxleft.getLine(), elxleft.getColumn()); :}
+                | expression:el AND expression:er
+                    {:RESULT = new Expression.Boolean(el, er, Expression.Boolean.Type.AND, elxleft.getLine(), elxleft.getColumn()); :}
+                | expression:el OR expression:er
+                    {:RESULT = new Expression.Boolean(el, er, Expression.Boolean.Type.OR, elxleft.getLine(), elxleft.getColumn()); :}
+                | NOT expression:er
+                    {: RESULT = new Expression.Boolean(er, Expression.Boolean.Type.NOT,erxleft.getLine(),erxleft.getColumn()); :};
 
-expression_list ::= expression_list COMMA expression | expression;
+expression_list ::= expression_list:el COMMA expression:e
+                    {: RESULT = el; el.add(e); :}
+                | expression:e
+                    {: RESULT = new ArrayList<Expression>(); RESULT.add(e); :};
 
-statement ::= id ASSIGNMENT expression SEMICOLON 
-                | id LPAREN RPAREN SEMICOLON 
-                | id LPAREN expression_list RPAREN SEMICOLON
-                | if_statement
-                | WHILE LPAREN expression RPAREN LBRACE code_block RBRACE
-                | RETURN SEMICOLON 
-                | RETURN expression SEMICOLON 
-                | BREAK SEMICOLON
+statement       ::= id:id ASSIGNMENT expression:e SEMICOLON 
+                    {:RESULT = new Statement.Assignment(id,e,idxleft.getLine(), idxleft.getColumn()); :}
+                | id:id LPAREN RPAREN SEMICOLON 
+                    {:RESULT = new Statement.FunctionCall(id,idxleft.getLine(), idxleft.getColumn()); :}
+                | id:id LPAREN expression_list:expr RPAREN SEMICOLON
+                    {:RESULT = new Statement.FunctionCall(id,expr,idxleft.getLine(), idxleft.getColumn()); :}
+                | if_statement:i
+                    {:RESULT = i;:}
+                | WHILE:w LPAREN expression:e RPAREN LBRACE code_block:cb RBRACE
+                    {:RESULT = new Statement.While(e,cb,wxleft.getLine(),wxleft.getColumn()); :}
+                | RETURN:r SEMICOLON
+                    {:RESULT = new Statement.Return(rxleft.getLine(),rxleft.getColumn()); :}
+                | RETURN:r expression:e SEMICOLON 
+                    {:RESULT = new Statement.Return(e,rxleft.getLine(),rxleft.getColumn()); :}
+                | BREAK:b SEMICOLON
+                    {:RESULT = new Statement.Break(bxleft.getLine(),bxleft.getColumn()); :}
                 | error;
 
 
-if_statement ::= IF LPAREN expression RPAREN LBRACE code_block RBRACE
-                | IF LPAREN expression RPAREN LBRACE code_block RBRACE ELSE if_statement
-                | IF LPAREN expression RPAREN LBRACE code_block RBRACE ELSE LBRACE code_block RBRACE ;
+if_statement    ::= IF:i LPAREN expression:e RPAREN LBRACE code_block:cb RBRACE 
+                    {: RESULT = new Statement.If(e,cb,ixleft.getLine(),ixleft.getColumn()); :}
+                | IF:i LPAREN expression:e RPAREN LBRACE code_block:cb RBRACE ELSE if_statement:ifst 
+                    {: RESULT = new Statement.If(e,cb,ifst,ixleft.getLine(),ixleft.getColumn()); :}
+                | IF:i LPAREN expression:e RPAREN LBRACE code_block:cbif RBRACE ELSE LBRACE code_block:cbelse RBRACE 
+                    {: RESULT = new Statement.If(e,cbif,cbelse,ixleft.getLine(),ixleft.getColumn()); :};
