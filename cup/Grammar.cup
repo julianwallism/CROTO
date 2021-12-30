@@ -120,9 +120,11 @@ id ::= IDENTIFIER;
 literal ::= INTEGER_VALUE 
                 | BOOLEAN_VALUE;
 
-code_block ::= | declaration_statements;
+code_block ::= | code_block var_declaration 
+                | code_block statement 
+                | var_declaration 
+                | statement;
 
-declaration_statements ::= declaration_statements var_declaration | declaration_statements statement;
 
 var_declaration ::= CONSTANT type id SEMICOLON 
                 | CONSTANT type id assigment_expr SEMICOLON 
