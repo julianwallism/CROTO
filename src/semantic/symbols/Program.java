@@ -16,4 +16,8 @@ public class Program extends Structure {
         this.methods = methods;
     }
 
+    @Override
+    public void check(Visitor v) {
+        v.visit(this);
+    }
 }

@@ -2,17 +2,14 @@ package semantic;
 
 import java.util.HashMap;
 
-import javax.swing.text.html.FormSubmitEvent.MethodType;
-
 import java.io.*;
+import java.util.*;
 import semantic.symbol_table.*;
 import semantic.symbols.*;
 import semantic.symbols.Method.Parameter;
 import semantic.symbols.Structure.Instruction;
 
-import java.util.ArrayList;
-
-public class Semantic {
+public class Semantic implements Visitor {
 
     private HashMap<String, SymbolTable> methodTable;
     private String currentMethod;
@@ -41,7 +38,7 @@ public class Semantic {
     }
 
     private void writeError(String message) {
-        String ret = "Semantic error: ";
+        String ret = "Semantic Error: ";
         ret += message;
         try {
             FileWriter fw = new FileWriter("Errors.txt", true);
@@ -51,10 +48,11 @@ public class Semantic {
             bw.close();
             fw.close();
         } catch (IOException ex) {
-            System.err.println("Error when writing to Errors.tx");
+            System.err.println("Error when writing to Errors.txt");
         }
     }
 
+    @Override
     public void visit(Program p) {
         ArrayList<Method> methods = p.methods;
         Method main = null;
@@ -69,6 +67,7 @@ public class Semantic {
 
     }
 
+    @Override
     public void visit(Method method) {
         currentMethod = method.id.name;
         if (!addMethod(currentMethod)) {
@@ -77,7 +76,7 @@ public class Semantic {
              * checking
              */
             error = true;
-            writeError("Error: Line " + method.line + ", column " + method.column + ". Method \"" + currentMethod
+            writeError("Line " + method.line + ", column " + method.column + ". Method \"" + currentMethod
                     + "\" already declared.");
             currentMethod = "error" + methodErrors++ + "-" + currentMethod;
             addMethod(currentMethod);
@@ -88,7 +87,7 @@ public class Semantic {
 
         // comprobamos el codigo
         this.visit(method.cb);
-
+        this.visit(method.returnExpression);
         Type expectedType = method.returnType;
 
         /*
@@ -101,38 +100,166 @@ public class Semantic {
         this.methodTable.replace(currentMethod, table);
     }
 
-    private void visit(Parameter param) {
+    @Override
+    public void visit(Parameter param) {
         SymbolTable table = methodTable.get(currentMethod);
         if (!table.insertParam(param.id.name, param.type)) {
-            writeError("Error: Line " + param.line + ", column " + param.column + ". Parameter \"" + param.id.name
+            error = true;
+            writeError("Line " + param.line + ", column " + param.column + ". Parameter \"" + param.id.name
                     + "\" already declared.");
         } else {
             Variable var = table.getParam(param.id.name);
-            var.value = param.type.getDefaultValue();
+            var.setValue(param.type.getDefaultValue());
             // si no va, actualizar variable en tabla
             methodTable.replace(currentMethod, table);
         }
     }
 
-    private void visit(CodeBlock cb) {
-        SymbolTable table = methodTable.get(currentMethod);
-        table.enterScope();
-        for (Instruction i : cb.instructions) {
-            if (i instanceof Statement) {
-                this.visit((Statement) i);
-            } else if (i instanceof VarDeclaration) {
-                this.visit((VarDeclaration) i);
-            }
+    @Override
+    public void visit(CodeBlock cb) {
+        // SymbolTable table = methodTable.get(currentMethod);
+        for (Instruction instr : cb.instructions) {
+            instr.check(this);
         }
-        table.exitScope();
         // methodTable.replace(currentMethod, table);
     }
 
-    private void visit(VarDeclaration i) {
-
+    @Override
+    public void visit(VarDeclaration decl) {
+        SymbolTable table = this.methodTable.get(currentMethod);
+        if (table.getParam(decl.id.name) == null && table.get(decl.id.name) == null) {
+            Variable var;
+            if (decl.expr != null) {
+                visit(decl.expr);
+                if (returnType != decl.type) {
+                    error = true;
+                    writeError("Line " + decl.line + ", column " + decl.column + ". Variable \"" + decl.id.name
+                            + "\" incorrect assigment type: " + returnType + " expected type was: " + decl.type);
+                    return;
+                }
+                var = new Variable(decl.constant, decl.type, returnValue);
+            } else {
+                var = new Variable(decl.constant, decl.type);
+            }
+            table.insert(decl.id.name, var);
+            methodTable.replace(currentMethod, table);
+        } else {
+            error = true;
+            writeError("Line " + decl.line + ", column " + decl.column + ". Variable \"" + decl.id.name
+                    + "\" already declared.");
+        }
     }
 
-    private void visit(Statement i) {
-
+    @Override
+    public void visit(Statement.Assignment assign) {
+        SymbolTable table = this.methodTable.get(currentMethod);
+        Variable var = table.getParam(assign.id.name);
+        if (var == null) {
+            var = table.get(assign.id.name);
+            if (var == null) {
+                error = true;
+                writeError("Line " + assign.line + ", column " + assign.column + ". Variable not declared.");
+                returnType = Type.VOID;
+                return;
+            }
+        }
+        visit(assign.expr);
+        if (!returnType.equals(var.type)) {
+            error = true;
+            writeError("Line " + assign.line + ", column " + assign.column + ". Variable \"" + assign.id.name
+                    + "\" incorrect assigment type: " + returnType + " expected type was: " + var.type);
+            return;
+        }
+        if (!var.setValue(var.type.convertValueType(returnValue))) {
+            error = true;
+            writeError("Line " + assign.line + ", column " + assign.column
+                    + ". Can't assign value to constant variable: \"" + assign.id.name
+                    + "\".");
+            return;
+        }
+        this.methodTable.replace(currentMethod, table);
     }
+
+    @Override
+    public void visit(Statement.FunctionCall fc) {
+        SymbolTable table = methodTable.get(fc.id.name);
+        if (table == null) {
+            writeError("Line " + fc.line + ", column " + fc.column + ". Method declaration not found.");
+            error = true;
+            return;
+        }
+        ArrayList<Expression> args = fc.arguments;
+        HashMap<String, Variable> params = table.getParamTable();
+        if (args.size() != params.size()) {
+            writeError("Line " + fc.line + ", " + fc.column
+                    + ". Number of parameters doesnt match with method declaration.");
+        } else {
+            Iterator it = params.entrySet().iterator();
+            int counter = 0;
+            while (it.hasNext()) {
+                Variable param = (Variable)((Map.Entry)it.next()).getValue();
+                visit(args.get(counter));
+                if (!returnType.equals(param.type)) {
+                    writeError("Line " + fc.line + ", column " + fc.column + ". " + param.type + " expected but "
+                            + returnType + " found.");
+                }
+                counter++;
+            }
+            returnType = table.type;
+            returnValue = returnType.getDefaultValue();
+        }
+    }
+
+    @Override
+    public void visit(Identifier identifier) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void visit(Statement.If aThis) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void visit(Statement.While aThis) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void visit(Statement.Return aThis) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void visit(Statement.Break aThis) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void visit(Expression.Arithmetic aThis) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void visit(Expression.Boolean aThis) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void visit(Expression.FunctionCall aThis) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void visit(Expression.Literal aThis) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void visit(Expression.Id aThis) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    
+    
 }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import semantic.Type;
 
-public class Expression extends Structure {
+public abstract class Expression extends Structure { // HACER ABSTRACTA PARA EL CHECK?????
 
     public Expression(int line, int column) {
         super(line, column);
@@ -27,6 +27,11 @@ public class Expression extends Structure {
             this.left = left;
             this.right = right;
             this.type = type;
+        }
+
+        @Override
+        public void check(Visitor v) {
+            v.visit(this);
         }
     }
 
@@ -61,6 +66,11 @@ public class Expression extends Structure {
             this.type = type;
         }
 
+        @Override
+        public void check(Visitor v) {
+            v.visit(this);
+        }
+
     }
 
     public static class FunctionCall extends Expression {
@@ -80,6 +90,11 @@ public class Expression extends Structure {
             this.arguments = null;
         }
 
+        @Override
+        public void check(Visitor v) {
+            v.visit(this);
+        }
+
     }
 
     public static class Literal extends Expression {
@@ -92,6 +107,11 @@ public class Expression extends Structure {
             this.type = type;
             this.value = value;
         }
+
+        @Override
+        public void check(Visitor v) {
+            v.visit(this);
+        }
     }
 
     public static class Id extends Expression {
@@ -101,6 +121,11 @@ public class Expression extends Structure {
         public Id(Identifier id, int line, int column) {
             super(line, column);
             this.id = id;
+        }
+
+        @Override
+        public void check(Visitor v) {
+            v.visit(this);
         }
     }
 }

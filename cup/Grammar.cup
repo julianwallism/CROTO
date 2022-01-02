@@ -120,12 +120,12 @@ methods         ::= method:m
 
 method          ::= CROTOFUNC id:id LPAREN RPAREN LBRACE code_block:cb RBRACE 
                     {: RESULT = new Method(id, cb, idxleft.getLine(), idxleft.getColumn()); :}
-                | CROTOFUNC type:t id:id LPAREN RPAREN LBRACE code_block:cb RBRACE 
-                    {: RESULT = new Method(t,id, cb, idxleft.getLine(), idxleft.getColumn()); :}
+                | CROTOFUNC type:t id:id LPAREN RPAREN LBRACE code_block:cb RETURN expression:e SEMICOLON RBRACE 
+                    {: RESULT = new Method(t,id, cb, e, idxleft.getLine(), idxleft.getColumn()); :}
                 | CROTOFUNC id:id LPAREN param_list:pl RPAREN LBRACE code_block:cb RBRACE 
                     {: RESULT = new Method(id, pl, cb, idxleft.getLine(), idxleft.getColumn()); :}
-                | CROTOFUNC type:t id:id LPAREN param_list:pl RPAREN LBRACE code_block:cb RBRACE 
-                    {: RESULT = new Method(t,id, pl, cb, idxleft.getLine(), idxleft.getColumn()); :};
+                | CROTOFUNC type:t id:id LPAREN param_list:pl RPAREN LBRACE code_block:cb RETURN expression:e SEMICOLON RBRACE 
+                    {: RESULT = new Method(t,id, pl, cb, e, idxleft.getLine(), idxleft.getColumn()); :};
 
 param_list      ::= param:p 
                     {: RESULT = new ArrayList<Method.Parameter>(); RESULT.add(p);:}
@@ -151,7 +151,7 @@ literal         ::= INTEGER_VALUE:val
 code_block      ::= instructions:ins {: RESULT = new Code_Block(ins, insxleft.getLine(),  insxleft.getColumn()); :};
 
 instructions    ::=  
-                    {: RESULT = new ArrayList<Instruction>();:}
+                    {: RESULT = new ArrayList();:}
                 | instructions:list instruction:i 
                     {: RESULT = list; list.add(i); :};
 

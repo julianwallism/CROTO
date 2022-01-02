@@ -38,6 +38,10 @@ public class SymbolTable {
         this.currentTable = aux;
     }
 
+    public HashMap<String, Variable> getParamTable() {
+        return params;
+    }
+
     public void exitScope() {
         level--;
         this.currentTable = this.currentTable.parentTable;
@@ -50,7 +54,7 @@ public class SymbolTable {
     /**
      * @return Variable if found, otherwise null
      */
-    public Variable find(String id) {
+    public Variable get(String id) {
         Variable aux = this.currentTable.find(id);
         Table iterador = this.currentTable;
         while (aux == null && iterador != null) {

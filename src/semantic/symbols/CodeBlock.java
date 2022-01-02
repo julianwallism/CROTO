@@ -13,6 +13,10 @@ public class CodeBlock extends Structure {
 
     public CodeBlock() {
         super(0, 0);
-        this.instructions = new ArrayList<Instruction>();
+    }
+
+    @Override
+    public void check(Visitor v) {
+        v.visit(this);
     }
 }

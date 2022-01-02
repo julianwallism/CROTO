@@ -12,4 +12,9 @@ public class Identifier extends Structure {
         super(line, column);
         this.name = name;
     }
+
+    @Override
+    public void check(Visitor v) {
+        v.visit(this);
+    }
 }

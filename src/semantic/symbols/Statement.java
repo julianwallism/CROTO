@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import semantic.symbols.Structure.Instruction;
 
-public class Statement extends Instruction {
+public abstract class Statement extends Instruction {
 
     public Statement(int line, int column) {
         super(line, column);
@@ -12,12 +12,17 @@ public class Statement extends Instruction {
 
     public static class Assignment extends Statement {
         public Identifier id;
-        public Expression e;
+        public Expression expr;
 
-        public Assignment(Identifier id, Expression e, int line, int column) {
+        public Assignment(Identifier id, Expression expr, int line, int column) {
             super(line, column);
             this.id = id;
-            this.e = e;
+            this.expr = expr;
+        }
+
+        @Override
+        public void check(Visitor v) {
+            v.visit(this);
         }
     }
 
@@ -37,6 +42,10 @@ public class Statement extends Instruction {
             this.arguments = null;
         }
 
+        @Override
+        public void check(Visitor v) {
+            v.visit(this);
+        }
     }
 
     public static class If extends Statement {
@@ -65,6 +74,11 @@ public class Statement extends Instruction {
             this.cb = cb;
             this.elseIf = elseIf;
         }
+
+        @Override
+        public void check(Visitor v) {
+            v.visit(this);
+        }
     }
 
     public static class While extends Statement {
@@ -75,6 +89,11 @@ public class Statement extends Instruction {
             super(line, column);
             this.e = e;
             this.cb = cb;
+        }
+
+        @Override
+        public void check(Visitor v) {
+            v.visit(this);
         }
     }
 
@@ -89,11 +108,21 @@ public class Statement extends Instruction {
             super(line, column);
             this.expr = e;
         }
+
+        @Override
+        public void check(Visitor v) {
+            v.visit(this);
+        }
     }
 
     public static class Break extends Statement {
         public Break(int line, int column) {
             super(line, column);
+        }
+
+        @Override
+        public void check(Visitor v) {
+            v.visit(this);
         }
     }
 }

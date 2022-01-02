@@ -1,6 +1,8 @@
 package semantic.symbols;
 
-public class Structure {
+import semantic.Semantic;
+
+public abstract class Structure {
 
     public int line, column;
 
@@ -20,7 +22,9 @@ public class Structure {
         return this.column;
     }
 
-    public static class Instruction extends Structure {
+    public abstract void check(Visitor v);
+
+    public static abstract class Instruction extends Structure {
 
         public Instruction(int line, int column) {
             super(line, column);

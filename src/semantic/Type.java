@@ -15,4 +15,15 @@ public enum Type {
                 return null;
         }
     }
+
+    public Object convertValueType(Object value) {
+        switch (this) {
+            case INTEGER:
+                return (int) value;
+            case BOOLEAN:
+                return (boolean) value;
+            default:
+                return null;
+        }
+    }
 }

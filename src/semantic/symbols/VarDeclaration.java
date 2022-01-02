@@ -15,6 +15,7 @@ public class VarDeclaration extends Instruction {
         this.constant = constant;
         this.type = type;
         this.id = id;
+        this.expr = null;
     }
 
     public VarDeclaration(boolean constant, Type type, Identifier id, Expression expr, int line, int column) {
@@ -23,5 +24,10 @@ public class VarDeclaration extends Instruction {
         this.type = type;
         this.id = id;
         this.expr = expr;
+    }
+
+    @Override
+    public void check(Visitor v) {
+        v.visit(this);
     }
 }
