@@ -2,14 +2,14 @@ package semantic.symbols;
 
 public class Identifier extends Structure {
 
-    String id;
+    public String name;
 
     public Identifier(String id) {
-        this.id = id;
+        this.name = id;
     }
 
-    public Identifier(String id, int line, int column) {
+    public Identifier(String name, int line, int column) {
         super(line, column);
-        this.id = id;
+        this.name = name;
     }
 }

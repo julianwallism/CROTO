@@ -2,6 +2,8 @@ package semantic.symbols;
 
 import java.util.ArrayList;
 
+import semantic.Type;
+
 public class Expression extends Structure {
 
     public Expression(int line, int column) {
@@ -9,8 +11,9 @@ public class Expression extends Structure {
     }
 
     public static class Arithmetic extends Expression {
-        Expression left, right;
-        Arithmetic.Type type;
+
+        public Expression left, right;
+        public Arithmetic.Type type;
 
         public enum Type {
             ADDITION,
@@ -29,8 +32,8 @@ public class Expression extends Structure {
 
     public static class Boolean extends Expression {
 
-        Expression left, right;
-        Boolean.Type type;
+        public Expression left, right;
+        public Boolean.Type type;
 
         public enum Type {
             EQUAL,
@@ -61,8 +64,9 @@ public class Expression extends Structure {
     }
 
     public static class FunctionCall extends Expression {
-        Identifier id;
-        ArrayList<Expression> arguments;
+
+        public Identifier id;
+        public ArrayList<Expression> arguments;
 
         public FunctionCall(Identifier id, ArrayList<Expression> arguments, int line, int column) {
             super(line, column);
@@ -80,8 +84,8 @@ public class Expression extends Structure {
 
     public static class Literal extends Expression {
 
-        private Object value;
-        private Type type;
+        public Object value;
+        public Type type;
 
         public Literal(Type type, Object value, int line, int column) {
             super(line, column);
@@ -91,7 +95,8 @@ public class Expression extends Structure {
     }
 
     public static class Id extends Expression {
-        private Identifier id;
+
+        public Identifier id;
 
         public Id(Identifier id, int line, int column) {
             super(line, column);

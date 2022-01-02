@@ -78,21 +78,22 @@ terminal java.lang.Integer INTEGER_VALUE;
 terminal java.lang.Boolean BOOLEAN_VALUE;
 terminal java.lang.String IDENTIFIER;
 
-non terminal Program                        program;
-non terminal Method                         main;
-non terminal ArrayList<Method>              methods;
-non terminal Method                         method;
-non terminal ArrayList<Method.Parameter>    param_list;
-non terminal Method.Parameter               param;
-non terminal Type                           type;
-non terminal Identifier                     id;
-non terminal CodeBlock                      code_block;
-non terminal VarDeclaration                 var_declaration;
-non terminal Expression                     expression, boolean_expression, literal;
-non terminal ArrayList<Expression>          expression_list;
-non terminal Statement                      statement;
-non terminal Statement.If                   if_statement;
-non terminal DeclarationStatements          declaration_statements;
+non terminal Program                            program;
+non terminal Method                             main;
+non terminal ArrayList<Method>                  methods;
+non terminal Method                             method;
+non terminal ArrayList<Method.Parameter>        param_list;
+non terminal Method.Parameter                   param;
+non terminal Type                               type;
+non terminal Identifier                         id;
+non terminal CodeBlock                          code_block;
+non terminal VarDeclaration                     var_declaration;
+non terminal Expression                         expression, boolean_expression, literal;
+non terminal ArrayList<Expression>              expression_list;
+non terminal Statement                          statement;
+non terminal Statement.If                       if_statement;
+non terminal Structure.Instruction              instruction;
+non terminal ArrayList<Structure.Instruction>   instructions;
 
 precedence nonassoc ASSIGNMENT;
 precedence left     OR;
@@ -147,19 +148,17 @@ literal         ::= INTEGER_VALUE:val
                 | BOOLEAN_VALUE:val
                     {: RESULT = new Expression.Literal(Type.BOOLEAN, val, valxleft.getLine(), valxleft.getColumn()); :};
 
-code_block      ::= 
-                    {: RESULT = new CodeBlock();:}
-                | declaration_statements:ds 
-                    {: RESULT = new CodeBlock(ds,dsxleft.getLine(),dsxleft.getColumn());:};
+code_block      ::= instructions:ins {: RESULT = new Code_Block(ins, insxleft.getLine(),  insxleft.getColumn()); :};
 
-declaration_statements ::= declaration_statements:ds var_declaration:d 
-                    {: RESULT = ds; ds. addDeclaration(d);:}
-                | declaration_statements:ds statement:s
-                    {: RESULT = ds; ds.addStatement(s);:}
-                | var_declaration:d  
-                    {: RESULT = new DeclarationStatements(); RESULT.addDeclaration(d);:}
-                | statement:s 
-                    {:  RESULT = new DeclarationStatements(); RESULT.addStatement(s);:};
+instructions    ::=  
+                    {: RESULT = new ArrayList<Instruction>();:}
+                | instructions:list instruction:i 
+                    {: RESULT = list; list.add(i); :};
+
+instruction     ::= statement:s
+                    {: RESULT = s; :}
+                | var_declaration:d
+                    {: RESULT = d; :};
 
 var_declaration ::= CONSTANT type:t id:id SEMICOLON
                     {: RESULT = new VarDeclaration(true, t, id, txleft.getLine(), txleft.getColumn()); :}

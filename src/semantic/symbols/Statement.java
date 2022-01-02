@@ -1,17 +1,18 @@
 package semantic.symbols;
 
 import java.util.ArrayList;
-import semantic.symbol_table.TipusSubjacentBasic;
 
-public class Statement extends Structure {
+import semantic.symbols.Structure.Instruction;
+
+public class Statement extends Instruction {
 
     public Statement(int line, int column) {
         super(line, column);
     }
 
     public static class Assignment extends Statement {
-        Identifier id;
-        Expression e;
+        public Identifier id;
+        public Expression e;
 
         public Assignment(Identifier id, Expression e, int line, int column) {
             super(line, column);
@@ -21,8 +22,8 @@ public class Statement extends Structure {
     }
 
     public static class FunctionCall extends Statement {
-        Identifier id;
-        ArrayList<Expression> arguments;
+        public Identifier id;
+        public ArrayList<Expression> arguments;
 
         public FunctionCall(Identifier id, ArrayList<Expression> arguments, int line, int column) {
             super(line, column);
@@ -40,8 +41,8 @@ public class Statement extends Structure {
 
     public static class If extends Statement {
 
-        Expression expr;
-        CodeBlock cb, cbElse;
+        public Expression expr;
+        public CodeBlock cb, cbElse;
         If elseIf;
 
         public If(Expression e, CodeBlock cb, int line, int column) {
@@ -67,8 +68,8 @@ public class Statement extends Structure {
     }
 
     public static class While extends Statement {
-        Expression e;
-        CodeBlock cb;
+        public Expression e;
+        public CodeBlock cb;
 
         public While(Expression e, CodeBlock cb, int line, int column) {
             super(line, column);
@@ -78,7 +79,7 @@ public class Statement extends Structure {
     }
 
     public static class Return extends Statement {
-        Expression expr;
+        public Expression expr;
 
         public Return(int line, int column) {
             super(line, column);

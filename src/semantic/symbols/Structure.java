@@ -2,7 +2,7 @@ package semantic.symbols;
 
 public class Structure {
 
-    private int line, column;
+    public int line, column;
 
     public Structure() {
     }
@@ -19,4 +19,12 @@ public class Structure {
     public int getColumn() {
         return this.column;
     }
+
+    public static class Instruction extends Structure {
+
+        public Instruction(int line, int column) {
+            super(line, column);
+        }
+    }
+
 }

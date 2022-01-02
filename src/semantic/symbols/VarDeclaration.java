@@ -1,11 +1,14 @@
 package semantic.symbols;
 
-public class VarDeclaration extends Structure {
+import semantic.Type;
+import semantic.symbols.Structure.Instruction;
 
-    private boolean constant;
-    private Type type;
-    private Identifier id;
-    private Expression expr;
+public class VarDeclaration extends Instruction {
+
+    public boolean constant;
+    public Type type;
+    public Identifier id;
+    public Expression expr;
 
     public VarDeclaration(boolean constant, Type type, Identifier id, int line, int column) {
         super(line, column);

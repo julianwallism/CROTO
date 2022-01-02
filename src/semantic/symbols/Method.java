@@ -2,17 +2,20 @@ package semantic.symbols;
 
 import java.util.ArrayList;
 
+import semantic.Type;
+
 public class Method extends Structure {
 
-    Identifier id;
-    CodeBlock cb;
-    Type returnType;
-    ArrayList<Parameter> params;
+    public Identifier id;
+    public CodeBlock cb;
+    public Type returnType;
+    public ArrayList<Parameter> params;
 
     public Method(Identifier id, CodeBlock cb, int line, int column) {
         super(line, column);
         this.id = id;
         this.cb = cb;
+        params = new ArrayList<Parameter>();
     }
 
     public Method(Type type, Identifier id, CodeBlock cb, int line, int column) {
@@ -20,6 +23,7 @@ public class Method extends Structure {
         this.id = id;
         this.cb = cb;
         this.returnType = type;
+        params = new ArrayList<Parameter>();
     }
 
     public Method(Identifier id, ArrayList<Parameter> params, CodeBlock cb, int line, int column) {
@@ -29,7 +33,7 @@ public class Method extends Structure {
         this.params = params;
     }
 
-    public Method(Type type, Identifier id, ArrayList<Parameter> arguments, CodeBlock cb, int line, int column) {
+    public Method(Type type, Identifier id, ArrayList<Parameter> params, CodeBlock cb, int line, int column) {
         super(line, column);
         this.id = id;
         this.cb = cb;
@@ -39,8 +43,8 @@ public class Method extends Structure {
 
     public static class Parameter extends Structure {
 
-        Type type;
-        Identifier id;
+        public Type type;
+        public Identifier id;
 
         public Parameter(Type type, Identifier id, int line, int column) {
             super(line, column);

@@ -4,15 +4,15 @@ import java.util.ArrayList;
 
 public class CodeBlock extends Structure {
 
-    private DeclarationStatements ds;
+    public ArrayList<Instruction> instructions;
 
-    public CodeBlock(DeclarationStatements ds, int line, int column) {
+    public CodeBlock(ArrayList<Instruction> instructions, int line, int column) {
         super(line, column);
-        this.ds = ds;
+        this.instructions = instructions;
     }
 
     public CodeBlock() {
         super(0, 0);
-        this.ds = new DeclarationStatements();
+        this.instructions = new ArrayList<Instruction>();
     }
 }

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public class Program extends Structure {
 
-    private Method main;
-    private ArrayList<Method> methods;
+    public Method main;
+    public ArrayList<Method> methods;
 
     public Program(Method main) {
         this.main = main;
