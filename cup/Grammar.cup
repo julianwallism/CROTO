@@ -102,6 +102,7 @@ precedence left     EQUAL, DIFFERENT, GREATER, LOWER, GREATER_EQUAL, LOWER_EQUAL
 precedence left     ADDITION, SUBTRACTION;
 precedence left     MULTIPLICATION, DIVISION;
 precedence right    NOT;
+precedence right    RETURN;
 
 start with program;
 
@@ -148,10 +149,13 @@ literal         ::= INTEGER_VALUE:val
                 | BOOLEAN_VALUE:val
                     {: RESULT = new Expression.Literal(Type.BOOLEAN, val, valxleft.getLine(), valxleft.getColumn()); :};
 
-code_block      ::= instructions:ins {: RESULT = new Code_Block(ins, insxleft.getLine(),  insxleft.getColumn()); :};
+code_block      ::=  {:RESULT = new Code_Block();:}
+                | instructions:ins 
+                    {: RESULT = new Code_Block(ins, insxleft.getLine(),  insxleft.getColumn()); :};
 
-instructions    ::=  
-                    {: RESULT = new ArrayList();:}
+
+instructions    ::= instruction:i
+                    {: RESULT = new ArrayList(); RESULT.add(i):}
                 | instructions:list instruction:i 
                     {: RESULT = list; list.add(i); :};
 
