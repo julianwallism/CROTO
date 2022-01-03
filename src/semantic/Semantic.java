@@ -26,6 +26,7 @@ public class Semantic implements Visitor {
         returnValue = currentMethod = null;
         methodErrors = 0;
         error = false;
+        this.methodTable = new HashMap<String, SymbolTable>();
     }
 
     private boolean addMethod(String id) {
@@ -55,16 +56,11 @@ public class Semantic implements Visitor {
     @Override
     public void visit(Program p) {
         ArrayList<Method> methods = p.methods;
-        Method main = null;
-        for (Method m : methods) {
-            if (!m.id.name.equals("main")) {
-                this.visit(m);
-            } else {
-                main = m;
-            }
+        Method main = p.main;
+        for (Method method : methods) {
+            method.check(this);
         }
-        this.visit(main);
-
+        main.check(this);
     }
 
     @Override
@@ -82,21 +78,22 @@ public class Semantic implements Visitor {
             addMethod(currentMethod);
         }
         for (Method.Parameter param : method.params) {
-            this.visit(param);
+            param.check(this);
         }
 
         // comprobamos el codigo
-        this.visit(method.cb);
-        this.visit(method.returnExpression);
-        Type expectedType = method.returnType;
-
-        /*
-         * FALTA MIRAR RETURN , puede que cambiarlo ene l sintactic? (Forzar return en
-         * funciones con return type distinto de null)
-         */
-
+        method.codeBlock.check(this);
+        if(method.returnExpression != null){
+            method.returnExpression.check(this);
+            Type expectedType = method.returnType;
+            if(!returnType.equals(expectedType)){
+                error = true;
+                writeError("Line: " + method.line + ", column " + method.column + ". \"" + expectedType
+                    + "\" return expression expected, found \"" + returnType + "\" instead.");
+            }
+        }
         SymbolTable table = this.methodTable.get(currentMethod);
-        table.type = method.returnType;
+        table.returnType = method.returnType;
         this.methodTable.replace(currentMethod, table);
     }
 
@@ -118,10 +115,12 @@ public class Semantic implements Visitor {
     @Override
     public void visit(CodeBlock cb) {
         // SymbolTable table = methodTable.get(currentMethod);
-        for (Instruction instr : cb.instructions) {
-            instr.check(this);
+        if(cb.instructions != null){
+            for (Instruction instr : cb.instructions) {
+                instr.check(this);
+            }
+            // methodTable.replace(currentMethod, table);
         }
-        // methodTable.replace(currentMethod, table);
     }
 
     @Override
@@ -130,7 +129,7 @@ public class Semantic implements Visitor {
         if (table.getParam(decl.id.name) == null && table.get(decl.id.name) == null) {
             Variable var;
             if (decl.expr != null) {
-                visit(decl.expr);
+                decl.expr.check(this);
                 if (returnType != decl.type) {
                     error = true;
                     writeError("Line " + decl.line + ", column " + decl.column + ". Variable \"" + decl.id.name
@@ -158,12 +157,13 @@ public class Semantic implements Visitor {
             var = table.get(assign.id.name);
             if (var == null) {
                 error = true;
-                writeError("Line " + assign.line + ", column " + assign.column + ". Variable not declared.");
+                writeError("Line " + assign.line + ", column " + assign.column + ". Variable \"" + assign.id.name
+                        + "\" not declared.");
                 returnType = Type.VOID;
                 return;
             }
         }
-        visit(assign.expr);
+        assign.expr.check(this);
         if (!returnType.equals(var.type)) {
             error = true;
             writeError("Line " + assign.line + ", column " + assign.column + ". Variable \"" + assign.id.name
@@ -197,69 +197,165 @@ public class Semantic implements Visitor {
             Iterator it = params.entrySet().iterator();
             int counter = 0;
             while (it.hasNext()) {
-                Variable param = (Variable)((Map.Entry)it.next()).getValue();
-                visit(args.get(counter));
+                Variable param = (Variable) ((Map.Entry) it.next()).getValue();
+                args.get(counter).check(this);
                 if (!returnType.equals(param.type)) {
                     writeError("Line " + fc.line + ", column " + fc.column + ". " + param.type + " expected but "
                             + returnType + " found.");
                 }
                 counter++;
             }
-            returnType = table.type;
+            returnType = table.returnType;
             returnValue = returnType.getDefaultValue();
         }
     }
 
     @Override
     public void visit(Identifier identifier) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
     }
 
     @Override
-    public void visit(Statement.If aThis) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void visit(Statement.If ifStat) {
+        ifStat.expr.check(this);
+        if (returnType != Type.BOOLEAN) {
+            error = true;
+            writeError("Line " + ifStat.line + ", column " + ifStat.column + ". Expression not of BOOLEAN type.");
+        }
+        SymbolTable table = methodTable.get(currentMethod);
+        table.enterScope();
+        ifStat.cb.check(this);
+        table.exitScope();
+        if (ifStat.cbElse != null) {
+            table.enterScope();
+            ifStat.cbElse.check(this);
+            table.exitScope();
+        }
+        if (ifStat.elseIf != null) {
+            ifStat.elseIf.check(this);
+        }
     }
 
     @Override
-    public void visit(Statement.While aThis) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void visit(Statement.While whileStat) {
+        whileStat.expr.check(this);
+        if (returnType != Type.BOOLEAN) {
+            error = true;
+            writeError("Line " + whileStat.line + ", column " + whileStat.column + ". Expression not of BOOLEAN type.");
+        }
+        SymbolTable table = methodTable.get(currentMethod);
+        table.enterScope();
+        whileStat.cb.check(this);
+        table.exitScope();
     }
 
     @Override
-    public void visit(Statement.Return aThis) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void visit(Statement.Return returnStat) {
+        SymbolTable table = methodTable.get(currentMethod);
+        if (returnStat.expr == null) {
+            if (table.returnType != Type.VOID) {
+                error = true;
+                writeError("Line: " + returnStat.line + ", column " + returnStat.column + ". Unexpected return value.");
+            } else {
+                returnType = Type.VOID;
+            }
+        } else {
+            returnStat.expr.check(this);
+            Type expected = table.returnType;
+            if (!expected.equals(returnType)) {
+                error = true;
+                writeError("Line: " + returnStat.line + ", column " + returnStat.column + ". \"" + expected
+                        + "\" return expression expected, found \"" + returnType + "\" instead.");
+            }
+        }
     }
 
     @Override
-    public void visit(Statement.Break aThis) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void visit(Statement.Break breakStat) {
+        // ¿?
     }
 
     @Override
-    public void visit(Expression.Arithmetic aThis) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void visit(Expression.Arithmetic aritm) {
+        aritm.left.check(this);
+        if (returnType != Type.INTEGER) {
+            error = true;
+            writeError("Line " + aritm.line + ", column " + aritm.column + ". ???.");
+        }
+        Integer leftValue = (Integer) returnValue;
+        aritm.right.check(this);
+        if (returnType != Type.INTEGER) {
+            error = true;
+            writeError("Line " + aritm.line + ", column " + aritm.column + ". ???.");
+        }
+        returnValue = aritm.type.doOperation(leftValue, (int) returnValue);
     }
 
     @Override
-    public void visit(Expression.Boolean aThis) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void visit(Expression.Boolean bool) {
+        bool.right.check(this);
+        Object right = returnValue;
+        if (bool.type == Expression.Boolean.Type.NOT) {
+            returnType = Type.BOOLEAN;
+            returnValue = bool.type.doOperation(null, right);
+        } else {
+            bool.left.check(this);
+            Object left = returnValue;
+            returnType = Type.BOOLEAN;
+            returnValue = bool.type.doOperation(left, right);
+        }
     }
 
     @Override
-    public void visit(Expression.FunctionCall aThis) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void visit(Expression.FunctionCall fc) {
+        SymbolTable table = methodTable.get(fc.id.name);
+
+        ArrayList<Expression> args = fc.arguments;
+        HashMap<String, Variable> params = table.getParamTable();
+        if (args.size() != params.size()) {
+            writeError("Line " + fc.line + ", " + fc.column
+                    + ". Number of parameters doesnt match with method declaration.");
+        } else {
+            Iterator it = params.entrySet().iterator();
+            int counter = 0;
+            while (it.hasNext()) {
+                Variable param = (Variable) ((Map.Entry) it.next()).getValue();
+                args.get(counter).check(this);
+                if (!returnType.equals(param.type)) {
+                    writeError("Line " + fc.line + ", column " + fc.column + ". " + param.type + " expected but "
+                            + returnType + " found.");
+                }
+                counter++;
+            }
+            returnType = table.returnType;
+            returnValue = returnType.getDefaultValue();
+        }
     }
 
     @Override
-    public void visit(Expression.Literal aThis) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void visit(Expression.Literal literal) {
+        returnType = literal.type;
+        returnValue = literal.value;
     }
 
     @Override
-    public void visit(Expression.Id aThis) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void visit(Expression.Id idExpr) {
+        SymbolTable table = methodTable.get(currentMethod);
+        Variable var = table.getParam(idExpr.id.name);
+        if (var == null) {
+            var = table.get(idExpr.id.name);
+            if (var == null) {
+                error = true;
+                writeError("Line " + idExpr.line + ", column " + idExpr.column + ". Variable not found.");
+                returnType = Type.VOID;
+                return;
+            }
+        }
+        returnType = var.type;
+        if (var.getValue() == null) {
+            returnValue = returnType.getDefaultValue();
+        } else {
+            returnValue = var.getValue();
+        }
     }
-    
-    
-    
 }

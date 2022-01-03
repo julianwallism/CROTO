@@ -39,7 +39,7 @@ public abstract class Statement extends Instruction {
         public FunctionCall(Identifier id, int line, int column) {
             super(line, column);
             this.id = id;
-            this.arguments = null;
+            this.arguments = new ArrayList<>();
         }
 
         @Override
@@ -52,7 +52,7 @@ public abstract class Statement extends Instruction {
 
         public Expression expr;
         public CodeBlock cb, cbElse;
-        If elseIf;
+        public If elseIf;
 
         public If(Expression e, CodeBlock cb, int line, int column) {
             super(line, column);
@@ -82,12 +82,12 @@ public abstract class Statement extends Instruction {
     }
 
     public static class While extends Statement {
-        public Expression e;
+        public Expression expr;
         public CodeBlock cb;
 
         public While(Expression e, CodeBlock cb, int line, int column) {
             super(line, column);
-            this.e = e;
+            this.expr = e;
             this.cb = cb;
         }
 
@@ -102,6 +102,7 @@ public abstract class Statement extends Instruction {
 
         public Return(int line, int column) {
             super(line, column);
+            this.expr = null;
         }
 
         public Return(Expression e, int line, int column) {

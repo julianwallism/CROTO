@@ -12,6 +12,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import lexic.Lexer;
+import semantic.Semantic;
+import semantic.symbols.Program;
 import sintactic.parser;
 import sintactic.symbols.CrotoSymbolFactory;
 
@@ -49,8 +51,26 @@ public class Main {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    private static void semanticTester() {
+        try {
+            FileReader fr = new FileReader("Test.croto");
+            System.out.println("Reading file with source code...");
+            BufferedReader br = new BufferedReader(fr);
+            CrotoSymbolFactory symFact = new CrotoSymbolFactory();
+            Lexer lex = new Lexer(br, symFact);
+            parser p = new parser(lex, symFact);
+            System.out.println("Parsing source code...");
+            Program pr = (Program) p.parse().value;
+            System.out.println("Analyzing source code...");
+            Semantic s = new Semantic();
+            pr.check(s);
+        } catch (Exception ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     public static void main(String[] args) {
-        sintacticTester();
+        semanticTester();
     }
 }

@@ -7,7 +7,7 @@ import semantic.Type;
 public class Method extends Structure {
 
     public Identifier id;
-    public CodeBlock cb;
+    public CodeBlock codeBlock;
     public Type returnType;
     public ArrayList<Parameter> params;
     public Expression returnExpression;
@@ -15,15 +15,16 @@ public class Method extends Structure {
     public Method(Identifier id, CodeBlock cb, int line, int column) {
         super(line, column);
         this.id = id;
-        this.cb = cb;
+        this.codeBlock = cb;
         params = new ArrayList<Parameter>();
         this.returnExpression = null;
+        this.returnType = Type.VOID;
     }
 
     public Method(Type type, Identifier id, CodeBlock cb, Expression returnExpression, int line, int column) {
         super(line, column);
         this.id = id;
-        this.cb = cb;
+        this.codeBlock = cb;
         this.returnType = type;
         params = new ArrayList<Parameter>();
         this.returnExpression = returnExpression;
@@ -32,16 +33,17 @@ public class Method extends Structure {
     public Method(Identifier id, ArrayList<Parameter> params, CodeBlock cb, int line, int column) {
         super(line, column);
         this.id = id;
-        this.cb = cb;
+        this.codeBlock = cb;
         this.params = params;
         this.returnExpression = null;
+        this.returnType = Type.VOID;
     }
 
     public Method(Type type, Identifier id, ArrayList<Parameter> params, CodeBlock cb, Expression returnExpression,
             int line, int column) {
         super(line, column);
         this.id = id;
-        this.cb = cb;
+        this.codeBlock = cb;
         this.returnType = type;
         this.params = params;
         this.returnExpression = returnExpression;

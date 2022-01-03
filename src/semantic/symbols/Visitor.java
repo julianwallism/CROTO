@@ -12,29 +12,28 @@ public interface Visitor {
 
     public void visit(VarDeclaration decl);
 
-
     public void visit(Statement.Assignment assign);
 
     public void visit(Statement.FunctionCall fc);
 
     public void visit(Identifier identifier);
 
-    public void visit(Statement.If aThis);
+    public void visit(Statement.If ifStat);
 
-    public void visit(Statement.While aThis);
+    public void visit(Statement.While whileStat);
 
-    public void visit(Statement.Return aThis);
+    public void visit(Statement.Return returnStat);
 
-    public void visit(Statement.Break aThis);
+    public void visit(Statement.Break breakStat);
 
-    public void visit(Expression.Arithmetic aThis);
+    public void visit(Expression.Arithmetic aritm);
 
-    public void visit(Expression.Boolean aThis);
+    public void visit(Expression.Boolean bool);
 
-    public void visit(Expression.FunctionCall aThis);
+    public void visit(Expression.FunctionCall fc);
 
-    public void visit(Expression.Literal aThis);
+    public void visit(Expression.Literal literal);
 
-    public void visit(Expression.Id aThis);
+    public void visit(Expression.Id idExpr);
 
 }

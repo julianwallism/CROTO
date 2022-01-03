@@ -14,6 +14,7 @@ public class Variable {
 
     public Variable(Type type) {
         this.type = type;
+        this.value = null;
     }
 
     public Variable(Type type, Object v) {
@@ -24,11 +25,13 @@ public class Variable {
     public Variable(boolean constant, Type type) {
         this.type = type;
         this.constant = constant;
+        this.value = null;
     }
 
     public Variable(boolean constant, Type type, Object v) {
         this(type, v);
         this.constant = constant;
+        this.value = null;
     }
 
     public boolean setValue(Object v) {

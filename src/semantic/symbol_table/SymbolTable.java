@@ -12,7 +12,7 @@ public class SymbolTable {
     public Table currentTable;
     public HashMap<String, Variable> params;
     public int level = 0;
-    public Type type;
+    public Type returnType;
 
     public SymbolTable() {
         this.currentTable = new Table(null);
@@ -56,10 +56,10 @@ public class SymbolTable {
      */
     public Variable get(String id) {
         Variable aux = this.currentTable.find(id);
-        Table iterador = this.currentTable;
+        Table iterador = this.currentTable.parentTable;
         while (aux == null && iterador != null) {
-            iterador = iterador.parentTable;
             aux = iterador.find(id);
+            iterador = iterador.parentTable;
         }
         return aux;
     }

@@ -19,9 +19,9 @@ public enum Type {
     public Object convertValueType(Object value) {
         switch (this) {
             case INTEGER:
-                return (int) value;
+                return (Integer) value;
             case BOOLEAN:
-                return (boolean) value;
+                return (Boolean) value;
             default:
                 return null;
         }
