@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import semantic.symbol_table.*;
 import semantic.symbols.*;
 import semantic.symbols.Method.Parameter;
@@ -17,16 +19,45 @@ public class Semantic implements Visitor {
     /* Return */
     private Type returnType;
     private Object returnValue;
-
+    private FileWriter fw = null;
+    private BufferedWriter bw = null;
     /* Errors */
     private int methodErrors;
     private boolean error;
+    private String filename;
 
-    public Semantic() {
+    public Semantic(String filename) {
         returnValue = currentMethod = null;
         methodErrors = 0;
         error = false;
         this.methodTable = new HashMap<String, SymbolTable>();
+        this.filename = filename;
+
+    }
+
+    private void openFile() {
+        try {
+            fw = new FileWriter("logs/" + filename + "-Errors.txt");
+            bw = new BufferedWriter(fw);
+        } catch (IOException ex) {
+            System.err.println("Error when writing to Errors.txt");
+        }
+    }
+
+    public void closeFile() {
+        if (fw != null) {
+            try {
+                bw.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Semantic.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                try {
+                    fw.close();
+                } catch (Exception ex) {
+                    Logger.getLogger(Semantic.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
     }
 
     private boolean addMethod(String id) {
@@ -39,15 +70,15 @@ public class Semantic implements Visitor {
     }
 
     private void writeError(String message) {
+        if (fw == null) {
+            this.openFile();
+        }
         String ret = "Semantic Error: ";
         ret += message;
+        System.err.println(ret);
         try {
-            FileWriter fw = new FileWriter("Errors.txt", true);
-            BufferedWriter bw = new BufferedWriter(fw);
             bw.write(ret);
             bw.newLine();
-            bw.close();
-            fw.close();
         } catch (IOException ex) {
             System.err.println("Error when writing to Errors.txt");
         }
@@ -83,13 +114,13 @@ public class Semantic implements Visitor {
 
         // comprobamos el codigo
         method.codeBlock.check(this);
-        if(method.returnExpression != null){
+        if (method.returnExpression != null) {
             method.returnExpression.check(this);
             Type expectedType = method.returnType;
-            if(!returnType.equals(expectedType)){
+            if (!returnType.equals(expectedType)) {
                 error = true;
                 writeError("Line: " + method.line + ", column " + method.column + ". \"" + expectedType
-                    + "\" return expression expected, found \"" + returnType + "\" instead.");
+                        + "\" return expression expected, found \"" + returnType + "\" instead.");
             }
         }
         SymbolTable table = this.methodTable.get(currentMethod);
@@ -115,7 +146,7 @@ public class Semantic implements Visitor {
     @Override
     public void visit(CodeBlock cb) {
         // SymbolTable table = methodTable.get(currentMethod);
-        if(cb.instructions != null){
+        if (cb.instructions != null) {
             for (Instruction instr : cb.instructions) {
                 instr.check(this);
             }

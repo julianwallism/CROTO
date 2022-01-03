@@ -1,0 +1,1 @@
+Semantic Error: Line 19, column 9. Variable "g" not declared.

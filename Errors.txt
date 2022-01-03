@@ -1,3 +1,0 @@
-Semantic Error: Line 12, column 19. Boolean expression expected.
-Semantic Error: Line 12, column 19. Boolean expression expected.
-Semantic Error: Line 19, column 9. Variable "g" not declared.

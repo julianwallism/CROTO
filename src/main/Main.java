@@ -52,9 +52,9 @@ public class Main {
         }
     }
     
-    private static void semanticTester() {
+    private static void semanticTester(String filename) {
         try {
-            FileReader fr = new FileReader("Test.croto");
+            FileReader fr = new FileReader(filename+".croto");
             System.out.println("Reading file with source code...");
             BufferedReader br = new BufferedReader(fr);
             CrotoSymbolFactory symFact = new CrotoSymbolFactory();
@@ -63,14 +63,15 @@ public class Main {
             System.out.println("Parsing source code...");
             Program pr = (Program) p.parse().value;
             System.out.println("Analyzing source code...");
-            Semantic s = new Semantic();
+            Semantic s = new Semantic(filename);
             pr.check(s);
+            s.closeFile();
         } catch (Exception ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     public static void main(String[] args) {
-        semanticTester();
+        semanticTester("Test");
     }
 }
