@@ -29,6 +29,7 @@ public abstract class Structure {
         public Instruction(int line, int column) {
             super(line, column);
         }
+
     }
 
 }

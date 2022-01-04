@@ -87,11 +87,10 @@ public class Semantic implements Visitor {
     @Override
     public void visit(Program p) {
         ArrayList<Method> methods = p.methods;
-        Method main = p.main;
         for (Method method : methods) {
             method.check(this);
         }
-        main.check(this);
+        p.main.check(this);
     }
 
     @Override

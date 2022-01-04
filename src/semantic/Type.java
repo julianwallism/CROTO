@@ -26,4 +26,15 @@ public enum Type {
                 return null;
         }
     }
+
+    public int getSpace() {
+        switch (this) {
+            case INTEGER:
+                return 4;
+            case BOOLEAN:
+                return 1;
+            default:
+                return 0;
+        }
+    }
 }

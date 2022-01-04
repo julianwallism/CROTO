@@ -1,8 +1,15 @@
 package code_generation;
 
-public class Procedure extends Element{
+import java.util.ArrayList;
 
-    int level;
-    Label initial;
+public class Procedure extends Element {
 
+    String name, initial; // label
+    ArrayList<String> params;
+
+    public Procedure(String name, String initial, ArrayList<String> params) {
+        this.name = name;
+        this.initial = initial;
+        this.params = params;
+    }
 }

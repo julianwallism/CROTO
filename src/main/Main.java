@@ -4,6 +4,7 @@
  */
 package main;
 
+import code_generation.Instruction;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
