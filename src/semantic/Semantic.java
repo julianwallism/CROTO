@@ -23,7 +23,7 @@ public class Semantic implements Visitor {
     private BufferedWriter bw = null;
     /* Errors */
     private int methodErrors;
-    private boolean error;
+    public boolean error;
     private String filename;
 
     public Semantic(String filename) {
@@ -35,29 +35,27 @@ public class Semantic implements Visitor {
 
     }
 
-    private void openFile() {
+    public void openFile() {
         try {
-            fw = new FileWriter("logs/" + filename + "-Errors.txt");
-            bw = new BufferedWriter(fw);
+            this.fw = new FileWriter(filename + "Errors.txt");
+            this.bw = new BufferedWriter(fw);
         } catch (IOException ex) {
-            System.err.println("Error when writing to Errors.txt");
+            System.err.println("Error when writing to Errors.txt + "+ex.toString());
         }
     }
 
     public void closeFile() {
-        if (fw != null) {
             try {
-                bw.close();
+                this.bw.close();
             } catch (IOException ex) {
                 Logger.getLogger(Semantic.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
                 try {
-                    fw.close();
+                    this.fw.close();
                 } catch (Exception ex) {
                     Logger.getLogger(Semantic.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        }
     }
 
     private boolean addMethod(String id) {
@@ -70,15 +68,12 @@ public class Semantic implements Visitor {
     }
 
     private void writeError(String message) {
-        if (fw == null) {
-            this.openFile();
-        }
         String ret = "Semantic Error: ";
         ret += message;
         System.err.println(ret);
         try {
-            bw.write(ret);
-            bw.newLine();
+            this.bw.write(ret);
+            this.bw.newLine();
         } catch (IOException ex) {
             System.err.println("Error when writing to Errors.txt");
         }
@@ -86,9 +81,11 @@ public class Semantic implements Visitor {
 
     @Override
     public void visit(Program p) {
-        ArrayList<Method> methods = p.methods;
-        for (Method method : methods) {
-            method.check(this);
+        if (p.methods != null) {
+            ArrayList<Method> methods = p.methods;
+            for (Method method : methods) {
+                method.check(this);
+            }
         }
         p.main.check(this);
     }
@@ -110,7 +107,9 @@ public class Semantic implements Visitor {
         for (Method.Parameter param : method.params) {
             param.check(this);
         }
-
+        SymbolTable table = this.methodTable.get(currentMethod);
+        table.returnType = method.returnType;
+        this.methodTable.replace(currentMethod, table);
         // comprobamos el codigo
         method.codeBlock.check(this);
         if (method.returnExpression != null) {
@@ -122,9 +121,7 @@ public class Semantic implements Visitor {
                         + "\" return expression expected, found \"" + returnType + "\" instead.");
             }
         }
-        SymbolTable table = this.methodTable.get(currentMethod);
-        table.returnType = method.returnType;
-        this.methodTable.replace(currentMethod, table);
+
     }
 
     @Override
@@ -376,7 +373,7 @@ public class Semantic implements Visitor {
             var = table.get(idExpr.id.name);
             if (var == null) {
                 error = true;
-                writeError("Line " + idExpr.line + ", column " + idExpr.column + ". Variable not found.");
+                writeError("Line " + idExpr.line + ", column " + idExpr.column + ". Variable \""+idExpr.id.name +"\"not found.");
                 returnType = Type.VOID;
                 return;
             }

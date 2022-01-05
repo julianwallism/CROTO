@@ -59,7 +59,10 @@ EndOfLineComment     = "//" {InputCharacter}* {LineTerminator}?
 DocumentationComment = "/**" {CommentContent} "*"+ "/"
 CommentContent       = ( [^*] | \*+ [^/*] )*
 
-Identifier = [:jletter:] [:jletterdigit:]*
+crotoletter = [a-zA-Z]
+crotoletterdigit = {crotoletter}|[0-9]
+
+Identifier = {crotoletter} {crotoletterdigit}*
 
 DecIntegerLiteral = 0 | [1-9][0-9]*
 /*

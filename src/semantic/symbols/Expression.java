@@ -35,6 +35,21 @@ public abstract class Expression extends Structure { // HACER ABSTRACTA PARA EL 
                         return null;
                 }
             }
+
+            public String getInstruction() {
+                switch(this){
+                    case ADDITION:
+                        return " add ";
+                    case SUBTRACTION:
+                        return " sub ";
+                    case MULTIPLICATION:
+                        return " prod ";
+                    case DIVISION:
+                        return " div ";
+                    default:
+                        return null;
+                }
+            }
         }
 
         public Arithmetic(Expression left, Expression right, Arithmetic.Type type, int line, int column) {
@@ -86,6 +101,31 @@ public abstract class Expression extends Structure { // HACER ABSTRACTA PARA EL 
                         return (java.lang.Boolean) left || (java.lang.Boolean) right;
                     case NOT:
                         return !(java.lang.Boolean) right;
+                    default:
+                        return null;
+                }
+            }
+
+            public String getInstruction(){
+                switch (this) {
+                    case EQUAL:
+                        return " eq ";
+                    case DIFFERENT:
+                        return " ne ";
+                    case GREATER:
+                        return " gt ";
+                    case LOWER:
+                        return " lt ";
+                    case GREATER_EQUAL:
+                        return " ge ";
+                    case LOWER_EQUAL:
+                        return " le ";
+                    case AND:
+                        return " and ";
+                    case OR:
+                        return " or ";
+                    case NOT:
+                        return " not ";
                     default:
                         return null;
                 }

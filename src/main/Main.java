@@ -4,6 +4,7 @@
  */
 package main;
 
+import code_generation.CodeGenerator;
 import code_generation.Instruction;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -52,10 +53,10 @@ public class Main {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     private static void semanticTester(String filename) {
         try {
-            FileReader fr = new FileReader(filename+".croto");
+            FileReader fr = new FileReader(filename + ".croto");
             System.out.println("Reading file with source code...");
             BufferedReader br = new BufferedReader(fr);
             CrotoSymbolFactory symFact = new CrotoSymbolFactory();
@@ -72,7 +73,36 @@ public class Main {
         }
     }
 
+    private static void generationTester(String filename) {
+        try {
+            FileReader fr = new FileReader("test/" + filename + ".croto");
+            System.out.println("Reading file with source code...");
+            BufferedReader br = new BufferedReader(fr);
+            CrotoSymbolFactory symFact = new CrotoSymbolFactory();
+            Lexer lex = new Lexer(br, symFact);
+            parser p = new parser(lex, symFact);
+            System.out.println("Parsing source code...");
+            Program pr = (Program) p.parse().value;
+            System.out.println("Analyzing source code...");
+            Semantic s = new Semantic("logs/" + filename);
+            s.openFile();
+            pr.check(s);
+            s.closeFile();
+            if (s.error) {
+                System.err.println("Errors found. Compilation stopped.");
+            } else {
+                CodeGenerator cg = new CodeGenerator("test/" + filename);
+                System.out.println("Generating 3ac...");
+                pr.check(cg);
+                System.out.println("Writing 3ac to file...");
+                cg.write3ac();
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     public static void main(String[] args) {
-        semanticTester("Test");
+        generationTester("Test");
     }
 }

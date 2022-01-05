@@ -1,0 +1,12 @@
+lab0 _skip
+_pmb devuelvecinco
+t0 = _copy 5
+_rtn t0
+_rtn 0
+lab1 _skip
+_pmb main
+t1 = _copy 0
+_call devuelvecinco
+t2 = _t1 add %_rtn
+add = _copy t2
+_rtn 0

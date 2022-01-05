@@ -104,7 +104,7 @@ precedence left     EQUAL, DIFFERENT, GREATER, LOWER, GREATER_EQUAL, LOWER_EQUAL
 precedence left     ADDITION, SUBTRACTION;
 precedence left     MULTIPLICATION, DIVISION;
 precedence right    NOT;
-precedence right    RETURN;
+precedence left    RETURN;
 
 start with program;
 
@@ -195,6 +195,8 @@ expression      ::= expression:el ADDITION expression:er
                     {: RESULT = new Expression.FunctionCall(id, idxleft.getLine(), idxleft.getColumn()); :}
                 | literal:l
                     {: RESULT = l; :}
+                | SUBTRACTION expression:er {: Expression e = new Expression.Literal(Type.INTEGER, 0, erxleft.getLine(), erxleft.getColumn());
+                                                RESULT = new Expression.Arithmetic(e, er, Expression.Arithmetic.Type.SUBTRACTION, erxleft.getLine(), erxleft.getColumn()); :}
                 | error;
 
 boolean_expression ::= expression:el EQUAL expression:er
@@ -231,10 +233,10 @@ statement       ::= id:id ASSIGNMENT expression:e SEMICOLON
                     {:RESULT = i;:}
                 | WHILE:w LPAREN expression:e RPAREN LBRACE code_block:cb RBRACE
                     {:RESULT = new Statement.While(e,cb,wxleft.getLine(),wxleft.getColumn()); :}
-                | RETURN:r SEMICOLON
+                /*| RETURN:r SEMICOLON
                     {:RESULT = new Statement.Return(rxleft.getLine(),rxleft.getColumn()); :}
                 | RETURN:r expression:e SEMICOLON 
-                    {:RESULT = new Statement.Return(e,rxleft.getLine(),rxleft.getColumn()); :}
+                    {:RESULT = new Statement.Return(e,rxleft.getLine(),rxleft.getColumn()); :}*/
                 | BREAK:b SEMICOLON
                     {:RESULT = new Statement.Break(bxleft.getLine(),bxleft.getColumn()); :}
                 | error;

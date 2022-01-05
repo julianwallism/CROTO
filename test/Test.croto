@@ -1,9 +1,8 @@
-crotofunc suma(int a, int b){
-	return a + b;
+crotofunc int devuelvecinco(){
+    return 5;
 }
 
 crotofunc main(){
-	int a = 3;
-	int b = 2;
-	int res = suma(a, b);
+    int add = 0 + devuelvecinco();
+
 }

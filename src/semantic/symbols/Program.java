@@ -9,6 +9,7 @@ public class Program extends Structure {
 
     public Program(Method main) {
         this.main = main;
+        this.methods = new ArrayList<>();
     }
 
     public Program(Method main, ArrayList<Method> methods) {
