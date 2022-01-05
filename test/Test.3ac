@@ -1,12 +1,25 @@
 lab0 _skip
-_pmb devuelvecinco
-t0 = _copy 5
-_rtn t0
+_pmb suma
+t0 = _copy a
+t1 = _copy b
+t2 = _t0 add t1
+_rtn t2
 _rtn 0
 lab1 _skip
 _pmb main
-t1 = _copy 0
-_call devuelvecinco
-t2 = _t1 add %_rtn
-add = _copy t2
+t3 = _copy 5
+_param t3
+t4 = _copy 3
+_param t4
+_call suma
+a = _copy %_rtn
+t5 = _copy a
+t6 = _copy 10
+t7 = _t5 lt t6
+_if t7 _goto lab2
+t8 = _copy 3
+a = _copy t8
+_goto lab3
+lab2 _skip
+lab3 _skip
 _rtn 0

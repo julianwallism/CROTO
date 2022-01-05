@@ -16,20 +16,23 @@ public class CodeGenerator implements Visitor {
     public ArrayList<Instruction> instructions;
 
     private int nTempVars, nLabels, space;
-    private String currentProc, varName, filename;
+    private String currentProc, varName;
 
-    public CodeGenerator(String filename) {
+    public CodeGenerator() {
         nTempVars = nLabels = 0;
         currentProc = varName = null;
-        this.filename = filename;
         varTable = new ArrayList<>();
         procTable = new ArrayList<>();
         labTable = new ArrayList<>();
         this.instructions = new ArrayList<>();
 
     }
+    
+    public void generate3ac(Program prog){
+        prog.check(this);
+    }
 
-    public void write3ac() {
+    public void write3ac(String filename) {
         try {
             FileWriter fw = new FileWriter(filename + ".3ac");
             BufferedWriter bw = new BufferedWriter(fw);
@@ -42,8 +45,28 @@ public class CodeGenerator implements Visitor {
             e.printStackTrace();
         }
     }
+    
+    public void generateAssembly(){
+        
+    }
+    
+    /* EJECUCION NASM */
+    /* nasm –f elf –o program.o program.asm */
+    public void writeAssembly(String filename){
+        try {
+            FileWriter fw = new FileWriter(filename + ".asm");
+            BufferedWriter bw = new BufferedWriter(fw);
+            for (Instruction i : instructions) {
+                bw.write(i.toString() + "\n");
+            }
+            bw.close();
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-    public void generate(String instrRepr) {
+    private void generate(String instrRepr) {
         Instruction instr = new Instruction(instrRepr);
         this.instructions.add(instr);
     }

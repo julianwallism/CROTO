@@ -76,26 +76,27 @@ public class Main {
     private static void generationTester(String filename) {
         try {
             FileReader fr = new FileReader("test/" + filename + ".croto");
-            System.out.println("Reading file with source code...");
+            System.out.println("Reading and scanning source file...");
             BufferedReader br = new BufferedReader(fr);
             CrotoSymbolFactory symFact = new CrotoSymbolFactory();
             Lexer lex = new Lexer(br, symFact);
             parser p = new parser(lex, symFact);
             System.out.println("Parsing source code...");
-            Program pr = (Program) p.parse().value;
+            Program program = (Program) p.parse().value;
             System.out.println("Analyzing source code...");
             Semantic s = new Semantic("logs/" + filename);
             s.openFile();
-            pr.check(s);
+            program.check(s);
             s.closeFile();
             if (s.error) {
                 System.err.println("Errors found. Compilation stopped.");
             } else {
-                CodeGenerator cg = new CodeGenerator("test/" + filename);
+                CodeGenerator cg = new CodeGenerator();
                 System.out.println("Generating 3ac...");
-                pr.check(cg);
+                cg.generate3ac(program);
                 System.out.println("Writing 3ac to file...");
-                cg.write3ac();
+                cg.write3ac("test/" + filename);
+                cg.generateAssembly();
             }
         } catch (Exception ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
