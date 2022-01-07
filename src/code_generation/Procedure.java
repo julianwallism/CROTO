@@ -4,12 +4,11 @@ import java.util.ArrayList;
 
 public class Procedure extends Element {
 
-    String name, initial; // label
+    String start; // label
     ArrayList<String> params;
 
-    public Procedure(String name, String initial, ArrayList<String> params) {
-        this.name = name;
-        this.initial = initial;
+    public Procedure(String initial, ArrayList<String> params) {
+        this.start = initial;
         this.params = params;
     }
 }

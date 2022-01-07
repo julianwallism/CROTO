@@ -1,6 +1,6 @@
 package semantic.symbols;
 
-import semantic.Semantic;
+import semantic.SemanticAnalyzer;
 
 public abstract class Structure {
 

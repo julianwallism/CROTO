@@ -2,13 +2,12 @@ package code_generation;
 
 public class Variable extends Element {
 
-    String proc;
-    Type type;
-    String name;
-    int space;
+    public String proc;
+    public Type type;
+    public String name;
+    public int space;
 
-    public Variable(String name, int space) {
-        this.name = name;
+    public Variable(int space) {
         this.space = space;
     }
 

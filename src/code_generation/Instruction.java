@@ -54,16 +54,127 @@ public class Instruction {
                 break;
             case _PMB: // pmb op1
             case _CALL: // call op1
-            case _RTN:
             case _PARAM: // param op1
                 instr.op1 = token[1];
+                break;
+            case _RTN:
+                if(token.length > 1) instr.op1 = token[1];
+                else instr.op1 = null; // return vacio
                 break;
         }
         return instr;
     }
 
+    public String toAssembly() {
+        Procedure proc;
+        String instr = "";
+        switch (this.op) {
+            case _COPY:
+                instr = setOperandInRegister(op1);
+                instr += "\tmov dword\t[" + dest + "], eax";
+                break;
+            case _ADD:
+            case _SUB:
+            case _AND:
+            case _OR:
+            case _PROD:
+            case _DIV:
+                instr = setOperandsInRegister();
+                instr += "\t" + this.op.toNASM() + "\teax, ebx\n";
+                instr += "\tmov\t[" + dest + "], eax";
+                break;
+            case _NEG:
+            case _NOT:
+                instr = setOperandInRegister(op1);
+                instr += "\t" + this.op.toNASM() + "\teax\n";
+                instr += "\tmov\t[" + dest + "], eax";
+                break;
+            case _LT:
+            case _LE:
+            case _EQ:
+            case _NE:
+            case _GE:
+            case _GT:
+                String ne = CodeGenerator.newLabel();
+                String end = CodeGenerator.newLabel();
+                instr = setOperandsInRegister();
+                instr += "\tcmp\teax, ebx\n";
+                instr += "\t" + this.op.toNASM() + "\t" + ne + "\n"; // dword??
+                instr += "\tmov dword [" + dest + "], 0\n";
+                instr += "\tjmp\t" + end + "\n";
+                instr += "\t" + ne + ":\tnop\n";
+                instr += "\tmov dword [" + dest + "], -1\n"; // dword??
+                instr += "\t" + end + ":\tnop";
+                break;
+            case _SKIP:
+                instr = "\t" + op1 + " :\tnop";
+                break;
+            case _GOTO:
+                instr = "\tjmp\t" + op1;
+                break;
+            case _IF:
+                instr = setOperandInRegister(op1);
+                instr += "\tcmp\teax, 0\n";
+                instr += "\tje\t" + dest;
+                break;
+            case _PMB:
+                proc = CodeGenerator.procTable.get(op1);
+                int pos = 4;
+                for (String param : proc.params) {
+                    pos += 4;
+                    instr = "\tmov\teax, " + pos + "[esp]\n";
+                    instr += "\tmov\t[" + param + "], eax";
+                }
+                break;
+            case _CALL:
+                instr = "\tsub\tesp, 4\n";
+                proc = CodeGenerator.procTable.get(op1);
+                instr += "\tcall\t" + proc.start + "\n";
+                instr += "\tpop\teax\n";
+                instr += "\tadd\tesp, " + (proc.params.size() * 4);
+                break;
+            case _RTN:
+                if(op1 != null){
+                    instr = setOperandInRegister(op1);
+                    instr += "\tmov\t4[esp], eax\n";
+                }
+                instr += "\tret";
+                break;
+            case _PARAM:
+                instr = setOperandInRegister(op1);
+                instr += "\tpush\teax";
+                break;
+        }
+        return instr;
+    }
+
+    private String setOperandInRegister(String op) {
+        String instr = "";
+        if (CodeGenerator.varTable.keySet().contains(op)) {
+            instr = "\tmov\teax, [" + op1 + "]\n";
+        } else {
+            instr = "\tmov\teax, " + op1 + "\n";
+        }
+        return instr;
+    }
+
+    private String setOperandsInRegister() {
+        String instr = "";
+        if (CodeGenerator.varTable.keySet().contains(op1)) {
+            instr = "\tmov\teax, [" + op1 + "]\n";
+        } else {
+            instr = "\tmov\teax, " + op1 + "\n";
+        }
+        if (CodeGenerator.varTable.keySet().contains(op2)) {
+            instr += "\tmov\tebx, [" + op2 + "]\n";
+        } else {
+            instr += "\tmov\tebx, " + op2 + "\n";
+        }
+        return instr;
+    }
+
     @Override
-    public String toString(){
+    public String toString() {
         return this.stringRepr;
     }
 
@@ -96,12 +207,52 @@ public class Instruction {
             return this.name().toLowerCase();
         }
 
-        public static Operation getOperation(String repr) { 
+        public static Operation getOperation(String repr) {
             for (Operation op : Operation.values()) {
-                if (repr.contains(op.toString()))
+                if (repr.contains(op.toString())) {
                     return op;
+                }
             }
             return null;
+        }
+
+        public String toNASM() {
+            switch (this) {
+                case _COPY:
+                    return "mov";
+                case _ADD:
+                    return "add";
+                case _SUB:
+                    return "sub";
+                case _PROD:
+                    return "imul";
+                case _DIV:
+                    return "idiv";
+                case _NEG:
+                    return "neg";
+                case _AND:
+                    return "and";
+                case _OR:
+                    return "or";
+                case _NOT:
+                    return "not";
+                case _LT:
+                    return "jl";
+                case _LE:
+                    return "jle";
+                case _EQ:
+                    return "je";
+                case _NE:
+                    return "jne";
+                case _GE:
+                    return "jge";
+                case _GT:
+                    return "jg";
+                case _GOTO:
+                    return "jmp";
+                default:
+                    return null;
+            }
         }
     }
 }

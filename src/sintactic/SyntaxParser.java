@@ -8,33 +8,31 @@ package sintactic;
 import java_cup.runtime.*;
 import java.util.LinkedList;
 import java.util.ArrayList;
-import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
-import java_cup.runtime.ComplexSymbolFactory.Location;
 import sintactic.symbols.CrotoSymbol;
 import semantic.Type;
 import semantic.symbols.*;
 import java_cup.runtime.ComplexSymbolFactory.Location;
-import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20160615 (GIT 4ac7450) generated parser.
   */
 @SuppressWarnings({"rawtypes"})
-public class parser extends java_cup.runtime.lr_parser {
+public class SyntaxParser extends java_cup.runtime.lr_parser {
 
  public final Class getSymbolContainer() {
     return sym.class;
 }
 
+    public boolean error = false;
   /** Default constructor. */
   @Deprecated
-  public parser() {super();}
+  public SyntaxParser() {super();}
 
   /** Constructor which sets the default scanner. */
   @Deprecated
-  public parser(java_cup.runtime.Scanner s) {super(s);}
+  public SyntaxParser(java_cup.runtime.Scanner s) {super(s);}
 
   /** Constructor which sets the default scanner. */
-  public parser(java_cup.runtime.Scanner s, java_cup.runtime.SymbolFactory sf) {super(s,sf);}
+  public SyntaxParser(java_cup.runtime.Scanner s, java_cup.runtime.SymbolFactory sf) {super(s,sf);}
 
   /** Production table. */
   protected static final short _production_table[][] = 
@@ -388,9 +386,6 @@ public class parser extends java_cup.runtime.lr_parser {
 
 
  
-
-    public boolean error = false;
-
    @Override
     public void report_error(String message, Object info) {
         if (info instanceof CrotoSymbol) {
@@ -418,7 +413,7 @@ public class parser extends java_cup.runtime.lr_parser {
 
     @Override
     public void syntax_error(Symbol cur_token) {
-        error  = true;
+        error = true;
         report_error("Sintax error", cur_token, expecetd_tokens_names());
     }
 
@@ -438,10 +433,10 @@ public class parser extends java_cup.runtime.lr_parser {
 /** Cup generated class to encapsulate user supplied action code.*/
 @SuppressWarnings({"rawtypes", "unchecked", "unused"})
 class CUP$parser$actions {
-  private final parser parser;
+  private final SyntaxParser parser;
 
   /** Constructor */
-  CUP$parser$actions(parser parser) {
+  CUP$parser$actions(SyntaxParser parser) {
     this.parser = parser;
   }
 
@@ -1342,6 +1337,6 @@ class CUP$parser$actions {
                                CUP$parser$stack,
                                CUP$parser$top);
     }
-}
+    }
 
 }

@@ -4,7 +4,4 @@ crotofunc int suma(int a, int b){
 
 crotofunc main(){
     int a = suma(3, 5);
-    if(a<10){
-        a = 3;
-    }
 }

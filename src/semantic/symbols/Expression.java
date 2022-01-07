@@ -39,13 +39,13 @@ public abstract class Expression extends Structure { // HACER ABSTRACTA PARA EL 
             public String getInstruction() {
                 switch(this){
                     case ADDITION:
-                        return " add ";
+                        return " _add ";
                     case SUBTRACTION:
-                        return " sub ";
+                        return " _sub ";
                     case MULTIPLICATION:
-                        return " prod ";
+                        return " _prod ";
                     case DIVISION:
-                        return " div ";
+                        return " _div ";
                     default:
                         return null;
                 }
@@ -109,23 +109,23 @@ public abstract class Expression extends Structure { // HACER ABSTRACTA PARA EL 
             public String getInstruction(){
                 switch (this) {
                     case EQUAL:
-                        return " eq ";
+                        return " _eq ";
                     case DIFFERENT:
-                        return " ne ";
+                        return " _ne ";
                     case GREATER:
-                        return " gt ";
+                        return " _gt ";
                     case LOWER:
-                        return " lt ";
+                        return " _lt ";
                     case GREATER_EQUAL:
-                        return " ge ";
+                        return " _ge ";
                     case LOWER_EQUAL:
-                        return " le ";
+                        return " _le ";
                     case AND:
-                        return " and ";
+                        return " _and ";
                     case OR:
-                        return " or ";
+                        return " _or ";
                     case NOT:
-                        return " not ";
+                        return " _not ";
                     default:
                         return null;
                 }

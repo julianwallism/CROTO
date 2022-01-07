@@ -11,7 +11,7 @@ import semantic.symbols.*;
 import semantic.symbols.Method.Parameter;
 import semantic.symbols.Structure.Instruction;
 
-public class Semantic implements Visitor {
+public class SemanticAnalyzer implements Visitor {
 
     private HashMap<String, SymbolTable> methodTable;
     private String currentMethod;
@@ -24,18 +24,16 @@ public class Semantic implements Visitor {
     /* Errors */
     private int methodErrors;
     public boolean error;
-    private String filename;
 
-    public Semantic(String filename) {
+    public SemanticAnalyzer() {
         returnValue = currentMethod = null;
         methodErrors = 0;
         error = false;
         this.methodTable = new HashMap<String, SymbolTable>();
-        this.filename = filename;
 
     }
 
-    public void openFile() {
+    public void openFile(String filename) {
         try {
             this.fw = new FileWriter(filename + "Errors.txt");
             this.bw = new BufferedWriter(fw);
@@ -48,12 +46,12 @@ public class Semantic implements Visitor {
             try {
                 this.bw.close();
             } catch (IOException ex) {
-                Logger.getLogger(Semantic.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(SemanticAnalyzer.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
                 try {
                     this.fw.close();
                 } catch (Exception ex) {
-                    Logger.getLogger(Semantic.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(SemanticAnalyzer.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
     }
@@ -210,6 +208,11 @@ public class Semantic implements Visitor {
     @Override
     public void visit(Statement.FunctionCall fc) {
         SymbolTable table = methodTable.get(fc.id.name);
+        if(fc.id.name == "print" && fc.arguments.size() == 1){
+            returnType = Type.VOID;
+            returnValue = Type.VOID.getDefaultValue();
+            return;
+        }
         if (table == null) {
             writeError("Line " + fc.line + ", column " + fc.column + ". Method declaration not found.");
             error = true;

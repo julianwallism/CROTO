@@ -13,7 +13,7 @@ import sintactic.symbols.sym;
 
 // See https://github.com/jflex-de/jflex/issues/222
 @SuppressWarnings("FallThrough")
-public class Lexer implements java_cup.runtime.Scanner {
+public class LexicScanner implements java_cup.runtime.Scanner {
 
   /** This character denotes the end of file. */
   public static final int YYEOF = -1;
@@ -350,7 +350,7 @@ public class Lexer implements java_cup.runtime.Scanner {
     StringBuffer string = new StringBuffer();
     CrotoSymbolFactory symbolFactory;
 
-    public Lexer(java.io.Reader in, CrotoSymbolFactory sf){
+    public LexicScanner(java.io.Reader in, CrotoSymbolFactory sf){
 	this(in);
 	symbolFactory = sf;
     }
@@ -381,7 +381,7 @@ public class Lexer implements java_cup.runtime.Scanner {
    *
    * @param   in  the java.io.Reader to read input from.
    */
-  public Lexer(java.io.Reader in) {
+  public LexicScanner(java.io.Reader in) {
     this.zzReader = in;
   }
 

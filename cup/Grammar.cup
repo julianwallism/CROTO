@@ -11,6 +11,9 @@ import semantic.Type;
 import semantic.symbols.*;
 
 parser code  {: 
+
+    public boolean error = false;
+
    @Override
     public void report_error(String message, Object info) {
         if (info instanceof CrotoSymbol) {
@@ -38,6 +41,7 @@ parser code  {:
 
     @Override
     public void syntax_error(Symbol cur_token) {
+        error  = true;
         report_error("Sintax error", cur_token, expecetd_tokens_names());
     }
 
