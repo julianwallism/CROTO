@@ -149,17 +149,11 @@ public class Instruction {
             case _PRINT:
                 if (CodeGenerator.varTable.keySet().contains(op1)) {
                     Variable var = CodeGenerator.varTable.get(op1);
-                    if (var.space == -1) {
-                        instr = "\tpush\t" + op1 + "\n";
-                        instr += "\tcall\tprintf\n";
-                        instr += "\tadd\tesp, 4";
-                    } else {
-                        instr += "\tmov\tebx, dword [" + op1 + "]\n";
-                        instr += "\tpush\tebx\n";
-                        instr += "\tpush\tfmt\n";
-                        instr += "\tcall\tprintf\n";
-                        instr += "\tadd\tesp, 8";
-                    }
+                    instr = setOperandInRegister(op1);
+                    instr += "push\teax\n";
+                    instr += "push\tfmt\n";
+                    instr += "call\tprintf\n";
+                    instr += "add\tesp, 8";
                 }
                 break;
             /*
@@ -216,7 +210,7 @@ public class Instruction {
 
     private String setOperandInRegister(String op) {
         String instr = "";
-        if (CodeGenerator.varTable.keySet().contains(op)) {
+        if (!CodeGenerator.varTable.keySet().contains(op)) {
             instr = "\tmov\teax, [" + op1 + "]\n";
         } else {
             instr = "\tmov\teax, " + op1 + "\n";
@@ -226,12 +220,12 @@ public class Instruction {
 
     private String setOperandsInRegister() {
         String instr = "";
-        if (CodeGenerator.varTable.keySet().contains(op1)) {
+        if (!CodeGenerator.varTable.keySet().contains(op1)) {
             instr = "\tmov\teax, [" + op1 + "]\n";
         } else {
             instr = "\tmov\teax, " + op1 + "\n";
         }
-        if (CodeGenerator.varTable.keySet().contains(op2)) {
+        if (!CodeGenerator.varTable.keySet().contains(op2)) {
             instr += "\tmov\tebx, [" + op2 + "]\n";
         } else {
             instr += "\tmov\tebx, " + op2 + "\n";

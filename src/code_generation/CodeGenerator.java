@@ -53,10 +53,14 @@ public class CodeGenerator implements Visitor {
             System.out.println("First run \"generate3ac\"");
             return;
         }
-        assemblyInstr.add("global _start\n");
         generateData();
         assemblyInstr.add("\nsection .text");
-        assemblyInstr.add("\t_start:");
+        assemblyInstr.add("global main\n");
+        if (print) {
+            assemblyInstr.add("fmt:\tdb\t\"%d\", 10, 0");
+            assemblyInstr.add("extern printf");
+        }
+        assemblyInstr.add("\tmain:");
         for (Instruction instr : instructions) {
             assemblyInstr.add(instr.toAssembly());
         }
@@ -83,10 +87,7 @@ public class CodeGenerator implements Visitor {
                 }
             }
         }
-        if (print) {
-            assemblyInstr.add("fmt:\tdb\t\"%d\", 10, 0");
-            assemblyInstr.add("extern printf");
-        }
+        
     }
 
     /* EJECUCION NASM */

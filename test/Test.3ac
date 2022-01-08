@@ -1,9 +1,9 @@
 lab0 _skip
 _pmb main
 t0 = _copy 3
-maina = _copy t0
-t1 = _copy maina
-t2 = _copy 2
-t3 = t1 _add t2
+t1 = _copy 4
+t2 = t0 _add t1
+maina = _copy t2
+t3 = _copy maina
 _print t3
 _rtn

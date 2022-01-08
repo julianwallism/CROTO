@@ -1,4 +1,9 @@
+/* nasm -f elf -o Test.o Test.asm
+* gcc -m32 Test.o -o Test
+* ./Test
+*/
+
 crotofunc main(){
-    int a = 3;
-    print(a + 2);
+    int a = 3 + 4;
+    print(a);
 }
