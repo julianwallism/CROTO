@@ -208,7 +208,8 @@ public class SemanticAnalyzer implements Visitor {
     @Override
     public void visit(Statement.FunctionCall fc) {
         SymbolTable table = methodTable.get(fc.id.name);
-        if(fc.id.name == "print" && fc.arguments.size() == 1){
+        if(fc.id.name.equals("print") && fc.arguments.size() == 1){
+             fc.arguments.get(0).check(this);
             returnType = Type.VOID;
             returnValue = Type.VOID.getDefaultValue();
             return;

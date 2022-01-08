@@ -1,7 +1,4 @@
-crotofunc int suma(int a, int b){
-    return a + b;
-}
-
 crotofunc main(){
-    int a = suma(3, 5);
+    int a = 3;
+    print(a + 2);
 }

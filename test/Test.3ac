@@ -1,15 +1,9 @@
 lab0 _skip
-_pmb suma
-t0 = _copy a
-t1 = _copy b
-t2 = t0 _add t1
-_rtn t2
-lab1 _skip
 _pmb main
-t3 = _copy 5
-_param t3
-t4 = _copy 3
-_param t4
-_call suma
-maina = _copy %rtn
+t0 = _copy 3
+maina = _copy t0
+t1 = _copy maina
+t2 = _copy 2
+t3 = t1 _add t2
+_print t3
 _rtn

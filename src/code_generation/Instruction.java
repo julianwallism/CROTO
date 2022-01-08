@@ -2,7 +2,7 @@ package code_generation;
 
 public class Instruction {
 
-    private Operation op;
+    public Operation op;
     private String op1, op2, dest, stringRepr;
 
     public Instruction(String instr) {
@@ -54,12 +54,15 @@ public class Instruction {
                 break;
             case _PMB: // pmb op1
             case _CALL: // call op1
+            case _PRINT:
             case _PARAM: // param op1
                 instr.op1 = token[1];
                 break;
             case _RTN:
-                if(token.length > 1) instr.op1 = token[1];
-                else instr.op1 = null; // return vacio
+                if (token.length == 2)
+                    instr.op1 = token[1];
+                else
+                    instr.op1 = null;
                 break;
         }
         return instr;
@@ -70,8 +73,7 @@ public class Instruction {
         String instr = "";
         switch (this.op) {
             case _COPY:
-                instr = setOperandInRegister(op1);
-                instr += "\tmov dword\t[" + dest + "], eax";
+                instr = "\tmov dword\t[" + dest + "], " + op1;
                 break;
             case _ADD:
             case _SUB:
@@ -134,18 +136,82 @@ public class Instruction {
                 instr += "\tadd\tesp, " + (proc.params.size() * 4);
                 break;
             case _RTN:
-                if(op1 != null){
+                if (this.op1 != null) {
                     instr = setOperandInRegister(op1);
                     instr += "\tmov\t4[esp], eax\n";
                 }
                 instr += "\tret";
                 break;
             case _PARAM:
-                instr = setOperandInRegister(op1);
+                instr = setOperandInRegister(dest);
                 instr += "\tpush\teax";
                 break;
+            case _PRINT:
+                if (CodeGenerator.varTable.keySet().contains(op1)) {
+                    Variable var = CodeGenerator.varTable.get(op1);
+                    if (var.space == -1) {
+                        instr = "\tpush\t" + op1 + "\n";
+                        instr += "\tcall\tprintf\n";
+                        instr += "\tadd\tesp, 4";
+                    } else {
+                        instr += "\tmov\tebx, dword [" + op1 + "]\n";
+                        instr += "\tpush\tebx\n";
+                        instr += "\tpush\tfmt\n";
+                        instr += "\tcall\tprintf\n";
+                        instr += "\tadd\tesp, 8";
+                    }
+                }
+                break;
+            /*
+             * case PRINT:
+             * hi_ha_printf = true;
+             * if (esVariable(inst.getDesti())) {
+             * variable var = getVariable(inst.getDesti());
+             * if (var.ocup == -1) {
+             * text.add("	push " + inst.getDesti());
+             * text.add("	call _printf");
+             * text.add("	add esp, 4");
+             * } else {
+             * text.add("	mov ebx, dword [" + inst.getDesti() + "]");
+             * text.add("	push ebx");
+             * text.add("	push formatout");
+             * text.add("	call _printf");
+             * text.add("	add esp, 8");
+             * }
+             * } else {
+             * if (inst.getDesti().contains("\"")) {
+             * String t = novaVarTemp();
+             * data.add("\t" + t + ": db " + inst.getDesti() + ", 10, 0");
+             * text.add("	push " + t);
+             * eliminarVar(t);
+             * } else {
+             * text.add("	push " + inst.getDesti());
+             * }
+             * text.add("	call _printf");
+             * text.add("	add esp, 4");
+             * }
+             * break;
+             * case SCAN:
+             * hi_ha_scanf = true;
+             * text.add("	push " + inst.getDesti());
+             * text.add("	push formatin");
+             * text.add("	call _scanf");
+             * text.add("	add esp, 8");
+             * }
+             * }
+             * if (hi_ha_printf) {
+             * data.add("	formatout: db \"%d\", 10, 0");
+             * text.add(0, "\textern _printf");
+             * }
+             * if (hi_ha_scanf) {
+             * data.add("	formatin: db \"%d\", 0");
+             * text.add(0, "\textern _scanf");
+             * }
+             * 
+             */
         }
         return instr;
+
     }
 
     private String setOperandInRegister(String op) {
@@ -200,7 +266,8 @@ public class Instruction {
         _PMB,
         _CALL,
         _RTN,
-        _PARAM;
+        _PARAM,
+        _PRINT;
 
         @Override
         public String toString() {

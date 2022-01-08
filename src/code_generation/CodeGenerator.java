@@ -17,6 +17,7 @@ public class CodeGenerator implements Visitor {
 
     private static int nTempVars, nLabels, space;
     private String currentProc, varName;
+    private boolean print;
 
     public CodeGenerator() {
         nTempVars = nLabels = 0;
@@ -26,6 +27,7 @@ public class CodeGenerator implements Visitor {
         labTable = new ArrayList<>();
         instructions = new ArrayList<>();
         assemblyInstr = new ArrayList<>();
+        print = false;
     }
 
     public void generate3ac(Program prog) {
@@ -81,6 +83,10 @@ public class CodeGenerator implements Visitor {
                 }
             }
         }
+        if (print) {
+            assemblyInstr.add("fmt:\tdb\t\"%d\", 10, 0");
+            assemblyInstr.add("extern printf");
+        }
     }
 
     /* EJECUCION NASM */
@@ -131,7 +137,7 @@ public class CodeGenerator implements Visitor {
     @Override
     public void visit(Method method) {
         currentProc = method.id.name;
-        String label = newLabel(); //usar method.id.name como label??
+        String label = newLabel(); // usar method.id.name como label??
         generate(label + " _skip");
         generate("_pmb " + method.id.name);
         ArrayList<String> paramNames = new ArrayList<>();
@@ -153,7 +159,7 @@ public class CodeGenerator implements Visitor {
     public void visit(Method.Parameter param) {
         param.id.name = currentProc + param.id.name;
         this.varName = param.id.name;
-        this.space = param.type.getSpace();
+        space = param.type.getSpace();
     }
 
     @Override
@@ -167,7 +173,7 @@ public class CodeGenerator implements Visitor {
 
     @Override
     public void visit(VarDeclaration decl) {
-        this.space = decl.type.getSpace();
+        space = decl.type.getSpace();
         decl.id.name = currentProc + decl.id.name;
         newVar(decl.id.name);
         if (decl.expr != null) {
@@ -185,6 +191,12 @@ public class CodeGenerator implements Visitor {
 
     @Override
     public void visit(Statement.FunctionCall fc) {
+        if (fc.id.name.equals("print")) {
+            print = true;
+            fc.arguments.get(0).check(this);
+            generate("_print " + this.varName);
+            return;
+        }
         for (Expression arg : fc.arguments) {
             arg.check(this);
             generate("_param " + this.varName);
@@ -300,6 +312,7 @@ public class CodeGenerator implements Visitor {
 
     @Override
     public void visit(Expression.Id idExpr) {
+        idExpr.id.name = currentProc + idExpr.id.name;
         if (varTable.keySet().contains(idExpr.id.name)) {
             space = varTable.get(idExpr.id.name).space;
         }
