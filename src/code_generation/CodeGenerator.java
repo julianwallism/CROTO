@@ -60,7 +60,7 @@ public class CodeGenerator implements Visitor {
             assemblyInstr.add("fmt:\tdb\t\"%d\", 10, 0");
             assemblyInstr.add("extern printf");
         }
-        assemblyInstr.add("\tmain:");
+        
         for (Instruction instr : instructions) {
             assemblyInstr.add(instr.toAssembly());
         }
@@ -87,7 +87,7 @@ public class CodeGenerator implements Visitor {
                 }
             }
         }
-        
+
     }
 
     /* EJECUCION NASM */
@@ -215,7 +215,7 @@ public class CodeGenerator implements Visitor {
     public void visit(Statement.If ifStat) {
         ifStat.expr.check(this);
         String elseL = newLabel();
-        generate("_if " + varName + " _goto " + elseL);
+        generate("_if " + varName + " else " + elseL);
         ifStat.cb.check(this);
         String endIf = newLabel();
         generate("_goto " + endIf);
@@ -237,7 +237,7 @@ public class CodeGenerator implements Visitor {
         whileStat.expr.check(this);
 
         String endloop = newLabel();
-        generate("_if " + varName + " _goto " + endloop);
+        generate("_if " + varName + " else " + endloop);
         whileStat.cb.check(this);
         generate("_goto " + topLabel);
         generate(endloop + " _skip");

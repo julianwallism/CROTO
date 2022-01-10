@@ -1,5 +1,7 @@
 package code_generation;
 
+import static code_generation.CodeGenerator.assemblyInstr;
+
 public class Instruction {
 
     public Operation op;
@@ -73,7 +75,8 @@ public class Instruction {
         String instr = "";
         switch (this.op) {
             case _COPY:
-                instr = "\tmov dword\t[" + dest + "], " + op1;
+                instr = setOperandInRegister(op1);
+                instr += "\tmov dword\t[" + dest + "], eax";
                 break;
             case _ADD:
             case _SUB:
@@ -121,10 +124,13 @@ public class Instruction {
                 break;
             case _PMB:
                 proc = CodeGenerator.procTable.get(op1);
+                if(op1.equals("main")){
+                    CodeGenerator.assemblyInstr.add("\tmain:");
+                }
                 int pos = 4;
                 for (String param : proc.params) {
                     pos += 4;
-                    instr = "\tmov\teax, " + pos + "[esp]\n";
+                    instr = "\tmov\teax, [" + pos + "+ esp]\n";
                     instr += "\tmov\t[" + param + "], eax";
                 }
                 break;
@@ -138,7 +144,7 @@ public class Instruction {
             case _RTN:
                 if (this.op1 != null) {
                     instr = setOperandInRegister(op1);
-                    instr += "\tmov\t4[esp], eax\n";
+                    instr += "\tmov\t[4+esp], eax\n";
                 }
                 instr += "\tret";
                 break;
@@ -147,70 +153,21 @@ public class Instruction {
                 instr += "\tpush\teax";
                 break;
             case _PRINT:
-                if (CodeGenerator.varTable.keySet().contains(op1)) {
-                    Variable var = CodeGenerator.varTable.get(op1);
-                    instr = setOperandInRegister(op1);
-                    instr += "push\teax\n";
-                    instr += "push\tfmt\n";
-                    instr += "call\tprintf\n";
-                    instr += "add\tesp, 8";
-                }
+                instr = setOperandInRegister(op1);
+                instr += "\tpush\teax\n";
+                instr += "\tpush\tfmt\n";
+                instr += "\tcall\tprintf\n";
+                instr += "\tadd\tesp, 8";
                 break;
-            /*
-             * case PRINT:
-             * hi_ha_printf = true;
-             * if (esVariable(inst.getDesti())) {
-             * variable var = getVariable(inst.getDesti());
-             * if (var.ocup == -1) {
-             * text.add("	push " + inst.getDesti());
-             * text.add("	call _printf");
-             * text.add("	add esp, 4");
-             * } else {
-             * text.add("	mov ebx, dword [" + inst.getDesti() + "]");
-             * text.add("	push ebx");
-             * text.add("	push formatout");
-             * text.add("	call _printf");
-             * text.add("	add esp, 8");
-             * }
-             * } else {
-             * if (inst.getDesti().contains("\"")) {
-             * String t = novaVarTemp();
-             * data.add("\t" + t + ": db " + inst.getDesti() + ", 10, 0");
-             * text.add("	push " + t);
-             * eliminarVar(t);
-             * } else {
-             * text.add("	push " + inst.getDesti());
-             * }
-             * text.add("	call _printf");
-             * text.add("	add esp, 4");
-             * }
-             * break;
-             * case SCAN:
-             * hi_ha_scanf = true;
-             * text.add("	push " + inst.getDesti());
-             * text.add("	push formatin");
-             * text.add("	call _scanf");
-             * text.add("	add esp, 8");
-             * }
-             * }
-             * if (hi_ha_printf) {
-             * data.add("	formatout: db \"%d\", 10, 0");
-             * text.add(0, "\textern _printf");
-             * }
-             * if (hi_ha_scanf) {
-             * data.add("	formatin: db \"%d\", 0");
-             * text.add(0, "\textern _scanf");
-             * }
-             * 
-             */
+
         }
-        return instr;
+        return instr + " ; " + this.op + "\n";
 
     }
 
     private String setOperandInRegister(String op) {
         String instr = "";
-        if (!CodeGenerator.varTable.keySet().contains(op)) {
+        if (CodeGenerator.varTable.keySet().contains(op)) {
             instr = "\tmov\teax, [" + op1 + "]\n";
         } else {
             instr = "\tmov\teax, " + op1 + "\n";
@@ -220,12 +177,12 @@ public class Instruction {
 
     private String setOperandsInRegister() {
         String instr = "";
-        if (!CodeGenerator.varTable.keySet().contains(op1)) {
+        if (CodeGenerator.varTable.keySet().contains(op1)) {
             instr = "\tmov\teax, [" + op1 + "]\n";
         } else {
             instr = "\tmov\teax, " + op1 + "\n";
         }
-        if (!CodeGenerator.varTable.keySet().contains(op2)) {
+        if (CodeGenerator.varTable.keySet().contains(op2)) {
             instr += "\tmov\tebx, [" + op2 + "]\n";
         } else {
             instr += "\tmov\tebx, " + op2 + "\n";
