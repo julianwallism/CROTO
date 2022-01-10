@@ -6,6 +6,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import semantic.symbols.*;
+import semantic.*;
 
 public class CodeGenerator implements Visitor {
 
@@ -60,7 +61,7 @@ public class CodeGenerator implements Visitor {
             assemblyInstr.add("fmt:\tdb\t\"%d\", 10, 0");
             assemblyInstr.add("extern printf");
         }
-        
+
         for (Instruction instr : instructions) {
             assemblyInstr.add(instr.toAssembly());
         }
@@ -91,7 +92,7 @@ public class CodeGenerator implements Visitor {
     }
 
     /* EJECUCION NASM */
-    /* nasm –f elf –o program.o program.asm */
+ /* nasm –f elf –o program.o program.asm */
     public void writeAssembly(String filename) {
         try {
             FileWriter fw = new FileWriter(filename + ".asm");
@@ -117,6 +118,7 @@ public class CodeGenerator implements Visitor {
 
     private String newVar(String name) {
         Variable var = new Variable(space);
+        var.proc = this.currentProc;
         varTable.put(name, var);
         return name;
     }
@@ -146,6 +148,7 @@ public class CodeGenerator implements Visitor {
             param.check(this);
             paramNames.add(this.varName);
         }
+        procTable.put(method.id.name, new Procedure(label, paramNames));
         method.codeBlock.check(this);
         if (method.returnExpression != null) {
             method.returnExpression.check(this);
@@ -153,7 +156,6 @@ public class CodeGenerator implements Visitor {
         } else {
             generate("_rtn");
         }
-        procTable.put(method.id.name, new Procedure(label, paramNames));
     }
 
     @Override
@@ -231,7 +233,6 @@ public class CodeGenerator implements Visitor {
 
     @Override
     public void visit(Statement.While whileStat) {
-
         String topLabel = newLabel();
         generate(topLabel + " _skip");
         whileStat.expr.check(this);
@@ -287,7 +288,7 @@ public class CodeGenerator implements Visitor {
         }
         generate("_call " + fc.id.name);
         String tmp = newTempVar();
-        generate(tmp+" = _copy eax");
+        generate(tmp + " = _copy eax");
         this.varName = tmp;
     }
 

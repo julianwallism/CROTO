@@ -311,13 +311,15 @@ public class SemanticAnalyzer implements Visitor {
         aritm.left.check(this);
         if (returnType != Type.INTEGER) {
             error = true;
-            writeError("Line " + aritm.line + ", column " + aritm.column + ". ???.");
+            writeError("Line " + aritm.line + ", column " + aritm.column + ". Expected type was Integer but Boolean found.");
+            return;
         }
         Integer leftValue = (Integer) returnValue;
         aritm.right.check(this);
         if (returnType != Type.INTEGER) {
             error = true;
-            writeError("Line " + aritm.line + ", column " + aritm.column + ". ???.");
+            writeError("Line " + aritm.line + ", column " + aritm.column + ". Expected type was Integer but Boolean found.");
+            return;
         }
         returnValue = aritm.type.doOperation(leftValue, (int) returnValue);
     }
