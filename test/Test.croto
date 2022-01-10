@@ -1,18 +1,19 @@
 /* EXECUTION */
-/* nasm -f elf -o Test.o Test.asm && gcc -m32 Test.o -o Test && ./Test */
+/* nasm -f elf -o Test.o Test.asm && gcc -m32 Test.o -o Test && ./Test
+/* nasm -f elf -o Test.o Test.asm ; gcc -m32 Test.o -o Test ; ./Test 
+ */
 
 crotofunc int factorial(int a){
-    print(a);
     int res = 1;
     while(a>1){
-        print(res);
-        res = res * a;
+        res = res * factorial(a-1);
         a = a-1;
+        print(a);
     }
     return res;
 }
 
 crotofunc main(){
-    int res = factorial(3);
-    print(3);
+    int res = factorial(7);
+    print(res);
 }

@@ -1,34 +1,38 @@
 lab0 _skip
 _pmb factorial
-t0 = _copy factoriala
-_print t0
-t1 = _copy 1
-factorialres = _copy t1
+t0 = _copy 1
+factorialres = _copy t0
 lab1 _skip
-t2 = _copy factoriala
-t3 = _copy 1
-t4 = t2 _gt t3
-_if t4 else lab2
-t5 = _copy factorialres
-_print t5
-t6 = _copy factorialres
-t7 = _copy factoriala
-t8 = t6 _prod t7
-factorialres = _copy t8
-t9 = _copy factoriala
-t10 = _copy 1
-t11 = t9 _sub t10
-factoriala = _copy t11
+t1 = _copy factoriala
+t2 = _copy 1
+t3 = t1 _gt t2
+_if t3 else lab2
+t4 = _copy factorialres
+t5 = _copy factoriala
+t6 = _copy 1
+t7 = t5 _sub t6
+_param t7
+_call factorial
+t8 = _copy eax
+t9 = t4 _prod t8
+factorialres = _copy t9
+t10 = _copy factoriala
+t11 = _copy 1
+t12 = t10 _sub t11
+factoriala = _copy t12
+t13 = _copy factoriala
+_print t13
 _goto lab1
 lab2 _skip
-t12 = _copy factorialres
-_rtn t12
+t14 = _copy factorialres
+_rtn t14
 lab3 _skip
 _pmb main
-t13 = _copy 3
-_param t13
+t15 = _copy 7
+_param t15
 _call factorial
-mainres = _copy %rtn
-t14 = _copy 3
-_print t14
+t16 = _copy eax
+mainres = _copy t16
+t17 = _copy mainres
+_print t17
 _rtn

@@ -1,6 +1,7 @@
 package code_generation;
 
 import static code_generation.CodeGenerator.assemblyInstr;
+import java.util.ArrayList;
 
 public class Instruction {
 
@@ -124,7 +125,7 @@ public class Instruction {
                 break;
             case _PMB:
                 proc = CodeGenerator.procTable.get(op1);
-                if(op1.equals("main")){
+                if (op1.equals("main")) {
                     CodeGenerator.assemblyInstr.add("\tmain:");
                 }
                 int pos = 4;
@@ -149,7 +150,7 @@ public class Instruction {
                 instr += "\tret";
                 break;
             case _PARAM:
-                instr = setOperandInRegister(dest);
+                instr = setOperandInRegister(op1);
                 instr += "\tpush\teax";
                 break;
             case _PRINT:
@@ -165,12 +166,30 @@ public class Instruction {
 
     }
 
+    private String setParamInRegister(String op) {
+        if (isParameter(op))
+            return "\tmov\teax, [" + op + "]\n";
+        return "\tmov\teax, " + op + "\n";
+    }
+
+    private boolean isParameter(String op) {
+        for (String name : CodeGenerator.procTable.keySet()) {
+            ArrayList<String> declaredParams = CodeGenerator.procTable.get(name).params;
+            for (String param : declaredParams) {
+                if (param.equals(op)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private String setOperandInRegister(String op) {
         String instr = "";
-        if (CodeGenerator.varTable.keySet().contains(op)) {
-            instr = "\tmov\teax, [" + op1 + "]\n";
+        if (CodeGenerator.varTable.keySet().contains(op) || isParameter(op)) {
+            instr = "\tmov\teax, [" + op + "]\n";
         } else {
-            instr = "\tmov\teax, " + op1 + "\n";
+            instr = "\tmov\teax, " + op + "\n";
         }
         return instr;
     }

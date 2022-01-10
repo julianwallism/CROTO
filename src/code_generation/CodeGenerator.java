@@ -286,7 +286,9 @@ public class CodeGenerator implements Visitor {
             generate("_param " + this.varName);
         }
         generate("_call " + fc.id.name);
-        this.varName = "%rtn";
+        String tmp = newTempVar();
+        generate(tmp+" = _copy eax");
+        this.varName = tmp;
     }
 
     @Override
