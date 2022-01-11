@@ -1,9 +1,5 @@
-/* EXECUTION */
-/* nasm -f elf -o Test.o Test.asm && gcc -m32 Test.o -o Test && ./Test
-/* nasm -f elf -o Test.o Test.asm ; gcc -m32 Test.o -o Test ; ./Test 
- */
-
-
-crotofunc main(){
-    print(True + 5);
+crotofunc main() {
+    int a = 0;
+    scan(a);
+    print(a);
 }

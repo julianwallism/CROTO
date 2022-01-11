@@ -111,7 +111,9 @@ Exponent = [eE] [+-]? [0-9]+ */
     ">"                     { return symbol(">", sym.GREATER); }
     "<"                     { return symbol("<", sym.LOWER); }
     ">="                    { return symbol(">=", sym.GREATER_EQUAL); }
-    "<="                    { return symbol("<=", sym.GREATER_EQUAL); }
+    "<="                    { return symbol("<=", sym.LOWER_EQUAL); }
+   // "++"                    { return symbol("++", sym.INCREMENT); }
+    //"--"                    { return symbol("--", sym.DECREMENT); }
 
     /* separators */
     "("                     { return symbol("(", sym.LPAREN); }

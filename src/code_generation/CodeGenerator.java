@@ -2,6 +2,11 @@ package code_generation;
 
 import java.util.*;
 import java.util.Collections;
+
+import javax.sound.sampled.SourceDataLine;
+
+import code_generation.Instruction.Operation;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -18,7 +23,8 @@ public class CodeGenerator implements Visitor {
 
     private static int nTempVars, nLabels, space;
     private String currentProc, varName;
-    private boolean print;
+    private boolean io;
+    private String endLoop;
 
     public CodeGenerator() {
         nTempVars = nLabels = 0;
@@ -28,7 +34,7 @@ public class CodeGenerator implements Visitor {
         labTable = new ArrayList<>();
         instructions = new ArrayList<>();
         assemblyInstr = new ArrayList<>();
-        print = false;
+        io = false;
     }
 
     public void generate3ac(Program prog) {
@@ -57,9 +63,11 @@ public class CodeGenerator implements Visitor {
         generateData();
         assemblyInstr.add("\nsection .text");
         assemblyInstr.add("global main\n");
-        if (print) {
-            assemblyInstr.add("fmt:\tdb\t\"%d\", 10, 0");
+        if (io) {
+            assemblyInstr.add("fmtout:\tdb\t\"%d\", 10, 0");
+            assemblyInstr.add("fmtin:\tdb\t\"%d\", 0");
             assemblyInstr.add("extern printf");
+            assemblyInstr.add("extern scanf");
         }
 
         for (Instruction instr : instructions) {
@@ -91,8 +99,80 @@ public class CodeGenerator implements Visitor {
 
     }
 
+    public void optimize(int num_opts) {
+        for (int i = 0; i < num_opts; i++) {
+            // branchesOnBranches();
+            differedAssignments();
+        }
+    }
+
+    private void branchesOnBranches() {
+        boolean labelFound;
+        String label;
+        for (int i = 0; i < instructions.size(); i++) {
+            Instruction instr = instructions.get(0);
+            if (instr.op == Operation._IF || instr.op == Operation._GOTO) {
+                label = instr.dest;
+                labelFound = false;
+                for (int j = i + 1; j < instructions.size() && !labelFound; j++) {
+                    Instruction instr2 = instructions.get(j);
+                    if (instr2.op == Operation._SKIP && instr2.dest.equals(label)) {
+                        instr2 = instructions.get(j + 1);
+                        if (instr2.op == Operation._SKIP) {
+                            instr.dest = instr2.dest;
+                            for (int k = j + 1; k < instructions.size() && !labelFound; k++) {
+                                instr2 = instructions.get(k);
+                                if (instr2.op != Operation._SKIP && instr2.dest.equals(label))
+                                    labelFound = true;
+                            }
+                            if (!labelFound) {
+                                instructions.remove(j);
+                                i--;
+                                labTable.remove(label);
+                                labelFound = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void differedAssignments() {
+        int uses = 0, pos = 0;
+        Instruction instr, instr_aux;
+        for (int i = 0; i < instructions.size(); i++) {
+            instr = instructions.get(i);
+            if (instr.op == Operation._COPY && instr.dest.matches("^[t][0-9]+")) {
+                for (int j = i + 1; j < instructions.size(); j++) {
+                    instr_aux = instructions.get(j);
+                    if (instr.isExpression() || instr.op == Operation._IF || instr.op == Operation._PRINT) {
+                        if (instr.dest.equals(instr_aux.op1) || instr.dest.equals(instr_aux.op2)
+                                || instr.dest.equals(instr_aux.dest)) {
+                            uses++;
+                            pos = j;
+                        }
+                    }
+                }
+                if (uses == 1) {
+                    instr_aux = instructions.get(pos);
+                    if (instr.dest.equals(instr_aux.op1)) {
+                        instr_aux.op1 = instr.dest;
+                    } else if (instr.dest.equals(instr_aux.op2)) {
+                        instr_aux.op2 = instr.dest;
+                    } else {
+                        instr_aux.dest = instr.dest;
+                    }
+                    instructions.set(pos, instr_aux);
+                    instructions.remove(i--);
+                    varTable.remove(instr.dest);
+                }
+            }
+        }
+    }
+
     /* EJECUCION NASM */
- /* nasm –f elf –o program.o program.asm */
+    /* nasm –f elf –o program.o program.asm */
     public void writeAssembly(String filename) {
         try {
             FileWriter fw = new FileWriter(filename + ".asm");
@@ -195,9 +275,17 @@ public class CodeGenerator implements Visitor {
     @Override
     public void visit(Statement.FunctionCall fc) {
         if (fc.id.name.equals("print")) {
-            print = true;
+            io = true;
             fc.arguments.get(0).check(this);
             generate("_print " + this.varName);
+            return;
+        }
+        if (fc.id.name.equals("scan")) {
+            io = true;
+            fc.arguments.get(0).check(this);
+            generate("_scan " + this.varName);
+            Expression.Id id = (Expression.Id) fc.arguments.get(0);
+            generate(id.id.name + " = _copy " + this.varName);
             return;
         }
         for (Expression arg : fc.arguments) {
@@ -239,7 +327,9 @@ public class CodeGenerator implements Visitor {
 
         String endloop = newLabel();
         generate("_if " + varName + " else " + endloop);
+        this.endLoop = endloop;
         whileStat.cb.check(this);
+        this.endLoop = null;
         generate("_goto " + topLabel);
         generate(endloop + " _skip");
     }
@@ -251,7 +341,7 @@ public class CodeGenerator implements Visitor {
 
     @Override
     public void visit(Statement.Break breakStat) {
-
+        generate("_goto " + this.endLoop);
     }
 
     @Override

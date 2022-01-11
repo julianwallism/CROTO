@@ -24,6 +24,7 @@ public class SemanticAnalyzer implements Visitor {
     /* Errors */
     private int methodErrors;
     public boolean error;
+    private boolean inLoop = false;
 
     public SemanticAnalyzer() {
         returnValue = currentMethod = null;
@@ -38,22 +39,22 @@ public class SemanticAnalyzer implements Visitor {
             this.fw = new FileWriter(filename + "Errors.txt");
             this.bw = new BufferedWriter(fw);
         } catch (IOException ex) {
-            System.err.println("Error when writing to Errors.txt + "+ex.toString());
+            System.err.println("Error when writing to Errors.txt + " + ex.toString());
         }
     }
 
     public void closeFile() {
+        try {
+            this.bw.close();
+        } catch (IOException ex) {
+            Logger.getLogger(SemanticAnalyzer.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
             try {
-                this.bw.close();
-            } catch (IOException ex) {
+                this.fw.close();
+            } catch (Exception ex) {
                 Logger.getLogger(SemanticAnalyzer.class.getName()).log(Level.SEVERE, null, ex);
-            } finally {
-                try {
-                    this.fw.close();
-                } catch (Exception ex) {
-                    Logger.getLogger(SemanticAnalyzer.class.getName()).log(Level.SEVERE, null, ex);
-                }
             }
+        }
     }
 
     private boolean addMethod(String id) {
@@ -91,7 +92,7 @@ public class SemanticAnalyzer implements Visitor {
     @Override
     public void visit(Method method) {
         currentMethod = method.id.name;
-        if (!addMethod(currentMethod)) {
+        if (!addMethod(currentMethod) || method.id.name.equals("print") || method.id.name.equals("scan")) {
             /*
              * Error: method already declared. Rename method and keep going with Semantic
              * checking
@@ -208,8 +209,16 @@ public class SemanticAnalyzer implements Visitor {
     @Override
     public void visit(Statement.FunctionCall fc) {
         SymbolTable table = methodTable.get(fc.id.name);
-        if(fc.id.name.equals("print") && fc.arguments.size() == 1){
-             fc.arguments.get(0).check(this);
+        if ((fc.id.name.equals("scan") || fc.id.name.equals("print")) && fc.arguments.size() == 1) {
+            if (fc.id.name.equals("scan")) {
+                Expression e = fc.arguments.get(0);
+                if (!(e instanceof Expression.Id)) {
+                    error = true;
+                    writeError("Line " + fc.line + ", column " + fc.column + ". Variable name expected.");
+                    return;
+                }
+            }
+            fc.arguments.get(0).check(this);
             returnType = Type.VOID;
             returnValue = Type.VOID.getDefaultValue();
             return;
@@ -276,7 +285,9 @@ public class SemanticAnalyzer implements Visitor {
         }
         SymbolTable table = methodTable.get(currentMethod);
         table.enterScope();
+        this.inLoop = true;
         whileStat.cb.check(this);
+        this.inLoop = false;
         table.exitScope();
     }
 
@@ -303,7 +314,10 @@ public class SemanticAnalyzer implements Visitor {
 
     @Override
     public void visit(Statement.Break breakStat) {
-        // ¿?
+        if (!this.inLoop) {
+            error = true;
+            writeError("Line " + breakStat.line + ", column " + breakStat.column + ". Unexpected break statement.");
+        }
     }
 
     @Override
@@ -311,14 +325,16 @@ public class SemanticAnalyzer implements Visitor {
         aritm.left.check(this);
         if (returnType != Type.INTEGER) {
             error = true;
-            writeError("Line " + aritm.line + ", column " + aritm.column + ". Expected type was Integer but Boolean found.");
+            writeError("Line " + aritm.line + ", column " + aritm.column
+                    + ". Expected type was Integer but Boolean found.");
             return;
         }
         Integer leftValue = (Integer) returnValue;
         aritm.right.check(this);
         if (returnType != Type.INTEGER) {
             error = true;
-            writeError("Line " + aritm.line + ", column " + aritm.column + ". Expected type was Integer but Boolean found.");
+            writeError("Line " + aritm.line + ", column " + aritm.column
+                    + ". Expected type was Integer but Boolean found.");
             return;
         }
         returnValue = aritm.type.doOperation(leftValue, (int) returnValue);
@@ -379,7 +395,8 @@ public class SemanticAnalyzer implements Visitor {
             var = table.get(idExpr.id.name);
             if (var == null) {
                 error = true;
-                writeError("Line " + idExpr.line + ", column " + idExpr.column + ". Variable \""+idExpr.id.name +"\"not found.");
+                writeError("Line " + idExpr.line + ", column " + idExpr.column + ". Variable \"" + idExpr.id.name
+                        + "\"not found.");
                 returnType = Type.VOID;
                 return;
             }

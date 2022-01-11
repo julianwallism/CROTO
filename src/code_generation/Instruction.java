@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class Instruction {
 
     public Operation op;
-    private String op1, op2, dest, stringRepr;
+    public String op1, op2, dest, stringRepr;
 
     public Instruction(String instr) {
         op1 = op2 = dest = null;
@@ -15,6 +15,7 @@ public class Instruction {
 
     public static Instruction parse(String instrRepr) {
         Instruction instr = new Instruction(instrRepr);
+        instr.stringRepr = instrRepr;
         String[] token = instrRepr.split("\\s+");
         instr.op = Operation.getOperation(instrRepr);
         switch (instr.op) {
@@ -58,6 +59,7 @@ public class Instruction {
             case _PMB: // pmb op1
             case _CALL: // call op1
             case _PRINT:
+            case _SCAN:
             case _PARAM: // param op1
                 instr.op1 = token[1];
                 break;
@@ -84,9 +86,14 @@ public class Instruction {
             case _AND:
             case _OR:
             case _PROD:
-            case _DIV:
                 instr = setOperandsInRegister();
                 instr += "\t" + this.op.toNASM() + "\teax, ebx\n";
+                instr += "\tmov\t[" + dest + "], eax";
+                break;
+            case _DIV:
+                instr = "\txor\tedx, edx\n";
+                instr += setOperandsInRegister();
+                instr += "\tdiv\tebx\n";
                 instr += "\tmov\t[" + dest + "], eax";
                 break;
             case _NEG:
@@ -156,20 +163,19 @@ public class Instruction {
             case _PRINT:
                 instr = setOperandInRegister(op1);
                 instr += "\tpush\teax\n";
-                instr += "\tpush\tfmt\n";
+                instr += "\tpush\tfmtout\n";
                 instr += "\tcall\tprintf\n";
                 instr += "\tadd\tesp, 8";
                 break;
+            case _SCAN:
+                instr = "\tpush\t" + op1 + "\n";
+                instr += "\tpush\tfmtin\n";
+                instr += "\tcall\tscanf\n";
+                instr += "\tadd\tesp, 8";
 
         }
-        return instr + " ; " + this.op + "\n";
+        return "; " + this.stringRepr + "\n" + instr;
 
-    }
-
-    private String setParamInRegister(String op) {
-        if (isParameter(op))
-            return "\tmov\teax, [" + op + "]\n";
-        return "\tmov\teax, " + op + "\n";
     }
 
     private boolean isParameter(String op) {
@@ -209,6 +215,29 @@ public class Instruction {
         return instr;
     }
 
+    public boolean isExpression() {
+        switch (this.op) {
+            case _COPY:
+            case _ADD:
+            case _SUB:
+            case _PROD:
+            case _DIV:
+            case _NEG:
+            case _AND:
+            case _OR:
+            case _NOT:
+            case _LT:
+            case _LE:
+            case _EQ:
+            case _NE:
+            case _GE:
+            case _GT:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     @Override
     public String toString() {
         return this.stringRepr;
@@ -237,7 +266,8 @@ public class Instruction {
         _CALL,
         _RTN,
         _PARAM,
-        _PRINT;
+        _PRINT,
+        _SCAN;
 
         @Override
         public String toString() {
@@ -264,7 +294,7 @@ public class Instruction {
                 case _PROD:
                     return "imul";
                 case _DIV:
-                    return "idiv";
+                    return "div";
                 case _NEG:
                     return "neg";
                 case _AND:

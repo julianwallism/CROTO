@@ -1,4 +1,4 @@
-/* Execution: java -jar ../../lib/cup-11b.jar -locations ../../cup/Grammar.cup (ejecutar en: /src/sinctactic) */
+/* Execution: java -jar ../../lib/cup-11b.jar -parser SyntaxParser -locations ../../cup/Grammar.cup (ejecutar en: /src/sinctactic) */
 package sintactic;
 
 import java_cup.runtime.*;
@@ -72,7 +72,7 @@ terminal MAIN;
 
 /* Operators */
 terminal ASSIGNMENT; // Assignment
-terminal ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION; // Aritmetic
+terminal ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION, INCREMENT, DECREMENT; // Aritmetic
 terminal EQUAL, DIFFERENT, GREATER, LOWER, GREATER_EQUAL, LOWER_EQUAL; // Comparation
 terminal AND, OR, NOT; // Logical
 
@@ -108,7 +108,6 @@ precedence left     EQUAL, DIFFERENT, GREATER, LOWER, GREATER_EQUAL, LOWER_EQUAL
 precedence left     ADDITION, SUBTRACTION;
 precedence left     MULTIPLICATION, DIVISION;
 precedence right    NOT;
-precedence left    RETURN;
 
 start with program;
 
@@ -233,6 +232,14 @@ statement       ::= id:id ASSIGNMENT expression:e SEMICOLON
                     {:RESULT = new Statement.FunctionCall(id,idxleft.getLine(), idxleft.getColumn()); :}
                 | id:id LPAREN expression_list:expr RPAREN SEMICOLON
                     {:RESULT = new Statement.FunctionCall(id,expr,idxleft.getLine(), idxleft.getColumn()); :}
+                /*| id:id INCREMENT
+                    {: Expression.Literal uno = new Expression.Literal(Type.INTEGER, 1, -1, -1);
+                    Expression exp = new Expression.Arithmetic(new Expression.Id(id,idxleft.getLine(), idxleft.getColumn()),uno,Expression.Arithmetic.Type.ADDITION, idxleft.getLine(), idxleft.getColumn());
+                    RESULT = new Statement.Assignment(id,exp,idxleft.getLine(),idxleft.getColumn());:}
+                | id:id DECREMENT
+                    {: Expression.Literal menosuno = new Expression.Literal(Type.INTEGER, -1, -1, -1);
+                    Expression exp = new Expression.Arithmetic(new Expression.Id(id,idxleft.getLine(), idxleft.getColumn()),menosuno,Expression.Arithmetic.Type.ADDITION, idxleft.getLine(), idxleft.getColumn());
+                    RESULT = new Statement.Assignment(id,exp,idxleft.getLine(),idxleft.getColumn());:}//Increment i decrement afegits nous, no se si van.*/
                 | if_statement:i
                     {:RESULT = i;:}
                 | WHILE:w LPAREN expression:e RPAREN LBRACE code_block:cb RBRACE
