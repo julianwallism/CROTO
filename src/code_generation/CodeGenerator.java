@@ -11,7 +11,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import semantic.symbols.*;
-import semantic.*;
 
 public class CodeGenerator implements Visitor {
 
@@ -334,7 +333,7 @@ public class CodeGenerator implements Visitor {
         generate(endloop + " _skip");
     }
 
-    @Override
+    @Override 
     public void visit(Statement.Return returnStat) {
 
     }

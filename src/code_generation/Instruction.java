@@ -1,6 +1,5 @@
 package code_generation;
 
-import static code_generation.CodeGenerator.assemblyInstr;
 import java.util.ArrayList;
 
 public class Instruction {
@@ -15,7 +14,6 @@ public class Instruction {
 
     public static Instruction parse(String instrRepr) {
         Instruction instr = new Instruction(instrRepr);
-        instr.stringRepr = instrRepr;
         String[] token = instrRepr.split("\\s+");
         instr.op = Operation.getOperation(instrRepr);
         switch (instr.op) {

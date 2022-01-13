@@ -1,5 +1,9 @@
-crotofunc main() {
-    int a = 0;
-    scan(a);
-    print(a);
+
+crotofunc int suma(int a, int b){
+    return a + b;
+}
+
+crotofunc main(){
+
+    int r = suma(3, 5);
 }
