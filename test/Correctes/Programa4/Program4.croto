@@ -5,8 +5,8 @@ crotofunc int modulo(int a, int b){
     if(b<=0){
         return -1;
     }
-    quocient=a/b;
-    return a-a*quocient;
+    quocient = a/b;
+    return a-b*quocient;
 }
 
 crotofunc main(){
