@@ -1,0 +1,28 @@
+//nasm -f elf -o Programa2.o Programa2.asm && gcc -m32 Programa2.o -o Programa2 && ./Programa2
+
+crotofunc int fibonacci(int n){
+    int ret;
+    int a = 0; 
+    int b = 1;
+    print(a);
+    print(b);
+    while(n>0){
+        ret = a + b;
+        a=b;
+        b=ret;
+        print(ret);
+        n=n-1;
+    }
+    return ret;
+}
+
+crotofunc main(){
+    int resultado;
+    const int a = scan();
+    if(a>1){
+        resultado = fibonacci(a);
+    } else{
+        resultado = a;
+    }
+    print(resultado);
+}
