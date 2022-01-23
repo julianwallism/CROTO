@@ -1,4 +1,4 @@
-//nasm -f elf -o Programa2.o Programa2.asm && gcc -m32 Programa2.o -o Programa2 && ./Programa2
+//nasm -f elf -o Programa3.o Programa3.asm && gcc -m32 Programa3.o -o Programa3 && ./Programa3
 
 crotofunc int fibonacci(int n){
     int ret;
@@ -6,7 +6,7 @@ crotofunc int fibonacci(int n){
     int b = 1;
     print(a);
     print(b);
-    while(n>0){
+    while(n>1){
         ret = a + b;
         a=b;
         b=ret;

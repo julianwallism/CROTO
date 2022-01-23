@@ -1,1 +1,0 @@
-Semantic Error: Line 4, column 14. Expected type was Boolean but Integer found.

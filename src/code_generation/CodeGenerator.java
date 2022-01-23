@@ -121,8 +121,9 @@ public class CodeGenerator implements Visitor {
                             instr.dest = instr2.dest;
                             for (int k = j + 1; k < instructions.size() && !labelFound; k++) {
                                 instr2 = instructions.get(k);
-                                if (instr2.op != Operation._SKIP && instr2.dest.equals(label))
+                                if (instr2.op != Operation._SKIP && instr2.dest.equals(label)) {
                                     labelFound = true;
+                                }
                             }
                             if (!labelFound) {
                                 instructions.remove(j);
@@ -171,7 +172,7 @@ public class CodeGenerator implements Visitor {
     }
 
     /* EJECUCION NASM */
-    /* nasm –f elf –o program.o program.asm */
+ /* nasm –f elf –o program.o program.asm */
     public void writeAssembly(String filename) {
         try {
             FileWriter fw = new FileWriter(filename + ".asm");
@@ -292,7 +293,7 @@ public class CodeGenerator implements Visitor {
 
     @Override
     public void visit(Identifier identifier) {
-        
+
     }
 
     @Override
@@ -328,13 +329,13 @@ public class CodeGenerator implements Visitor {
         generate(endloop + " _skip");
     }
 
-    @Override 
+    @Override
     public void visit(Statement.Return returnStat) {
-        if(returnStat.expr == null){
+        if (returnStat.expr == null) {
             generate("_rtn");
-        } else{
+        } else {
             returnStat.expr.check(this);
-            generate("_rtn "+this.varName);
+            generate("_rtn " + this.varName);
         }
     }
 
@@ -355,13 +356,15 @@ public class CodeGenerator implements Visitor {
 
     @Override
     public void visit(Expression.Boolean bool) {
-        bool.left.check(this);
-        String left = varName;
-        bool.right.check(this);
+
         String tmp = newTempVar();
         if (bool.type == Expression.Boolean.Type.NOT) {
+            bool.right.check(this);
             generate(tmp + " = " + bool.type.getInstruction() + this.varName);
-        } else {
+        } else{
+            bool.left.check(this);
+            String left = varName;
+            bool.right.check(this);
             generate(tmp + " = " + left + bool.type.getInstruction() + this.varName);
         }
         this.varName = tmp;

@@ -1,4 +1,4 @@
-//nasm -f elf -o Programa2.o Programa2.asm && gcc -m32 Programa2.o -o Programa2 && ./Programa2
+//nasm -f elf -o Programa4.o Programa4.asm && gcc -m32 Programa4.o -o Programa4 && ./Programa4
 
 crotofunc int modulo(int a, int b){  
     int quocient;

@@ -1,5 +1,24 @@
 
 
 crotofunc main(){
-    bool a = 9 and 7;
+    bool a = True;
+
+    bool b = False;
+    print(a);
+    print(b);
+
+    bool c = (a and b) or not b;
+
+    if(c){
+        print(1);
+    } else{
+        print(0);
+    }
+
+    int d = 9;
+
+    int e = -d;
+
+    print(e);
+
 }

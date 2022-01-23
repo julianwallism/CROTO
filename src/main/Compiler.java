@@ -134,7 +134,7 @@ public class Compiler {
         // String outFile = args[1];
 
         Compiler comp = new Compiler();
-        comp.compile("Correctes/Programa3/Programa3.croto", "Programa3");
+        comp.compile("Correctes/Programa1/Programa1.croto", "Programa1");
         // generationTester("Test");
     }
 }

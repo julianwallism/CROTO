@@ -30,14 +30,18 @@ public abstract class Expression extends Structure { // HACER ABSTRACTA PARA EL 
                     case MULTIPLICATION:
                         return left * right;
                     case DIVISION:
-                        return left / right;
+                        if (right == 0) {
+                            return left / (right + 1);
+                        } else {
+                            return left / right;
+                        }
                     default:
                         return null;
                 }
             }
 
             public String getInstruction() {
-                switch(this){
+                switch (this) {
                     case ADDITION:
                         return " _add ";
                     case SUBTRACTION:
@@ -106,7 +110,7 @@ public abstract class Expression extends Structure { // HACER ABSTRACTA PARA EL 
                 }
             }
 
-            public String getInstruction(){
+            public String getInstruction() {
                 switch (this) {
                     case EQUAL:
                         return " _eq ";
