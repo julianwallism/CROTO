@@ -54,7 +54,9 @@ public class SymbolTable {
     }
 
     /**
-     * @return Variable if found, otherwise null
+     * 
+     * @param id
+     * @return Variable, null if not found
      */
     public Variable get(String id) {
         Variable aux = this.currentTable.find(id);

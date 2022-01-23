@@ -189,7 +189,6 @@ public class CodeGenerator implements Visitor {
 
     private void generate(String instrRepr) {
         Instruction instr = Instruction.parse(instrRepr);
-        System.out.println(instr.stringRepr);
         instructions.add(instr);
     }
 
