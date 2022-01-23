@@ -1,0 +1,13 @@
+crotofunc main(){
+    int a;
+    scan(a);
+    int b = a;
+    if(b>2){
+        int c = a*b;
+        print(c);
+    } else{
+        c=c/2; //No se pueden usar variables de un ámbito distinto
+    }
+    c=c+c; //No se pueden usar variables de un ámbito distinto
+    print(c+b);
+}

@@ -1,0 +1,29 @@
+//nasm -f elf -o Programa3.o Programa3.asm && gcc -m32 Programa3.o -o Programa3 && ./Programa3
+
+crotofunc int fibonacci(int n){
+    int ret;
+    int a = 0; 
+    int b = 1;
+    print(a);
+    print(b);
+    while(n){ //Int en un while en vez de un bool
+        ret = a + b;
+        a=b;
+        b=ret;
+        print(ret);
+        n=n-1;
+    }
+    return ret;
+}
+
+crotofunc main(){
+    int resultado;
+    const bool a;
+    scan(a);
+    if(a>1){ //No se puede hacer bool>int
+        resultado = fibonacci(a);
+    } else{
+        resultado = a; //No se le puede assignar un int a un bool
+    }
+    print(resultado);
+}

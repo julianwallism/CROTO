@@ -1,0 +1,20 @@
+//nasm -f elf -o Programa2.o Programa2.asm && gcc -m32 Programa2.o -o Programa2 && ./Programa2
+
+//El main tiene que ir al final
+
+crotofunc main(){
+    int a;
+    int b;
+    scan(a);
+    scan(b);
+    print(modulo(a,b));
+
+crotofunc int modulo(int a, int b){  
+    int quocient;
+    if(b<=0){
+        return -1;
+    }
+    quocient = a/b;
+    return a-b*quocient;
+}
+
