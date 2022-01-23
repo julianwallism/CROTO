@@ -25,6 +25,8 @@ public class SemanticAnalyzer implements Visitor {
     private int methodErrors;
     public boolean error;
     private boolean inLoop = false;
+    private boolean inIfElse = false;
+    private boolean returnOnEnd = false;
 
     public SemanticAnalyzer() {
         returnValue = currentMethod = null;
@@ -91,6 +93,7 @@ public class SemanticAnalyzer implements Visitor {
 
     @Override
     public void visit(Method method) {
+        returnOnEnd = false;
         currentMethod = method.id.name;
         if (!addMethod(currentMethod) || method.id.name.equals("print") || method.id.name.equals("scan")) {
             /*
@@ -111,15 +114,24 @@ public class SemanticAnalyzer implements Visitor {
         this.methodTable.replace(currentMethod, table);
         // comprobamos el codigo
         method.codeBlock.check(this);
-        if (method.returnExpression != null) {
-            method.returnExpression.check(this);
-            Type expectedType = method.returnType;
-            if (!returnType.equals(expectedType)) {
+
+        if(table.returnType != Type.VOID){
+            if(!returnOnEnd){
                 error = true;
-                writeError("Line: " + method.line + ", column " + method.column + ". \"" + expectedType
-                        + "\" return expression expected, found \"" + returnType + "\" instead.");
+                writeError("Line " + method.line + ", column " + method.column + ". Method \"" + currentMethod
+                    + "\" missing return statement.");
             }
         }
+
+        // if (method.returnExpression != null) {
+        //     method.returnExpression.check(this);
+        //     Type expectedType = method.returnType;
+        //     if (!returnType.equals(expectedType)) {
+        //         error = true;
+        //         writeError("Line: " + method.line + ", column " + method.column + ". \"" + expectedType
+        //                 + "\" return expression expected, found \"" + returnType + "\" instead.");
+        //     }
+        // }
 
     }
 
@@ -264,6 +276,7 @@ public class SemanticAnalyzer implements Visitor {
         }
         SymbolTable table = methodTable.get(currentMethod);
         table.enterScope();
+        inIfElse = true;
         ifStat.cb.check(this);
         table.exitScope();
         if (ifStat.cbElse != null) {
@@ -274,6 +287,7 @@ public class SemanticAnalyzer implements Visitor {
         if (ifStat.elseIf != null) {
             ifStat.elseIf.check(this);
         }
+        inIfElse = false;
     }
 
     @Override
@@ -299,6 +313,9 @@ public class SemanticAnalyzer implements Visitor {
                 error = true;
                 writeError("Line: " + returnStat.line + ", column " + returnStat.column + ". Unexpected return value.");
             } else {
+                if(!inIfElse || !inLoop){
+                    returnOnEnd = true;
+                }
                 returnType = Type.VOID;
             }
         } else {
@@ -308,6 +325,10 @@ public class SemanticAnalyzer implements Visitor {
                 error = true;
                 writeError("Line: " + returnStat.line + ", column " + returnStat.column + ". \"" + expected
                         + "\" return expression expected, found \"" + returnType + "\" instead.");
+            } else{
+                if(!inIfElse || !inLoop){
+                    returnOnEnd = true;
+                }
             }
         }
     }

@@ -1,0 +1,11 @@
+
+
+crotofunc main(){
+    bool a;
+    scan(a);
+    if(a){
+        print(10);
+    } else{
+        print(0);
+    }
+}

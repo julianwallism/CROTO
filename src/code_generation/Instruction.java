@@ -136,8 +136,8 @@ public class Instruction {
                 int pos = 4;
                 for (String param : proc.params) {
                     pos += 4;
-                    instr = "\tmov\teax, [" + pos + "+ esp]\n";
-                    instr += "\tmov\t[" + param + "], eax";
+                    instr += "\tmov\teax, [" + pos + "+ esp]\n";
+                    instr += "\tmov\t[" + param + "], eax\n";
                 }
                 break;
             case _CALL:

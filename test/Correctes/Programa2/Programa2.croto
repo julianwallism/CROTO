@@ -1,0 +1,45 @@
+
+//nasm -f elf -o Programa2.o Programa2.asm && gcc -m32 Programa2.o -o Programa2 && ./Programa2
+
+crotofunc int mayor(int a, int b, int c){
+    if(a > b and a > c){
+        return a;
+    }
+    if(b > a and b > c){
+        return b;
+    }
+    return c;
+}
+
+
+crotofunc int factorial(int n){
+    int ret = 1;
+    if(n <=1){
+        return ret;
+    } else{
+        int comptador = n;
+        while(comptador > 1){
+            ret = ret * comptador;
+            comptador = comptador - 1;
+        }
+    }
+    return ret;
+}
+
+crotofunc main(){
+    int a;
+    int b;
+    int c;
+    scan(a);
+    scan(b);
+    scan(c);
+    if(a>b and b == c){
+        print(99);
+    } else if(b != c){
+        print(0);
+    }
+
+    int m = mayor(a,b,c);
+    print(m);
+    print(factorial(m));
+}

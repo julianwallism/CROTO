@@ -1,0 +1,14 @@
+lab0 _skip
+_pmb main
+t0 = _copy maina
+_scan t0
+maina = _copy t0
+t1 = _copy maina
+_if t1 else lab1
+t2 = _copy 10
+_print t2
+_goto lab2
+lab1 _skip
+t3 = _copy 0
+_print t3
+lab2 _skip

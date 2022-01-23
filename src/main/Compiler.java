@@ -86,8 +86,8 @@ public class Compiler {
     private void generate(String outFile) {
         this.generator = new CodeGenerator();
         this.generator.generate3ac(this.prog);
-        this.generator.optimize(OPT_LVL);
-        System.out.println("optimizing code");
+        /*this.generator.optimize(OPT_LVL);
+        System.out.println("optimizing code");*/
         this.generator.write3ac(outFile);
         this.generator.generateAssembly();
         this.generator.writeAssembly(outFile);
@@ -134,7 +134,7 @@ public class Compiler {
         // String outFile = args[1];
 
         Compiler comp = new Compiler();
-        comp.compile("Test.croto", "Test");
+        comp.compile("Correctes/Programa1/Programa1.croto", "Programa1");
         // generationTester("Test");
     }
 }

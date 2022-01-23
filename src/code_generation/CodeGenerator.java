@@ -188,6 +188,7 @@ public class CodeGenerator implements Visitor {
 
     private void generate(String instrRepr) {
         Instruction instr = Instruction.parse(instrRepr);
+        System.out.println(instr.stringRepr);
         instructions.add(instr);
     }
 
@@ -229,12 +230,6 @@ public class CodeGenerator implements Visitor {
         }
         procTable.put(method.id.name, new Procedure(label, paramNames));
         method.codeBlock.check(this);
-        if (method.returnExpression != null) {
-            method.returnExpression.check(this);
-            generate("_rtn " + this.varName);
-        } else {
-            generate("_rtn");
-        }
     }
 
     @Override
@@ -297,7 +292,7 @@ public class CodeGenerator implements Visitor {
 
     @Override
     public void visit(Identifier identifier) {
-
+        
     }
 
     @Override
@@ -335,7 +330,12 @@ public class CodeGenerator implements Visitor {
 
     @Override 
     public void visit(Statement.Return returnStat) {
-
+        if(returnStat.expr == null){
+            generate("_rtn");
+        } else{
+            returnStat.expr.check(this);
+            generate("_rtn "+this.varName);
+        }
     }
 
     @Override

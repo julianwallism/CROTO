@@ -47,6 +47,8 @@ public class SymbolTable {
         this.currentTable = this.currentTable.parentTable;
     }
 
+    public int getScope(){return level;}
+
     public void insert(String id, Variable d) {
         this.currentTable.insert(id, d);
     }
