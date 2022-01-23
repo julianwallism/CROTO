@@ -81,7 +81,7 @@ public abstract class Expression extends Structure { // HACER ABSTRACTA PARA EL 
             OR,
             NOT;
 
-            public java.lang.Boolean doOperation(Object left, Object right) {
+            public java.lang.Boolean doOperation(Object left, Object right) throws java.lang.ClassCastException {
                 switch (this) {
                     case EQUAL:
                         return left == right;

@@ -372,7 +372,13 @@ public class SemanticAnalyzer implements Visitor {
             bool.left.check(this);
             Object left = returnValue;
             returnType = Type.BOOLEAN;
+            try{
             returnValue = bool.type.doOperation(left, right);
+            } catch(java.lang.ClassCastException e){
+                error = true;
+                writeError("Line " + bool.line + ", column " + bool.column
+                    + ". Expected type was Boolean but Integer found.");
+            }
         }
     }
 
