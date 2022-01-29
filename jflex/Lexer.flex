@@ -10,7 +10,7 @@ import sintactic.symbols.sym;
 
 /* Options and declarations */
 
-%class Lexer
+%class LexicScanner
 %cup
 %unicode
 %line
@@ -65,15 +65,7 @@ crotoletterdigit = {crotoletter}|[0-9]
 Identifier = {crotoletter} {crotoletterdigit}*
 
 DecIntegerLiteral = 0 | [1-9][0-9]*
-/*
-FloatLiteral  = ({FLit1}|{FLit2}|{FLit3}) {Exponent}? [fF]
-FLit1    = [0-9]+ \. [0-9]* 
-FLit2    = \. [0-9]+ 
-FLit3    = [0-9]+ 
-Exponent = [eE] [+-]? [0-9]+ */
 
-
-%state STRING, CHARLITERAL
 
 %%
 
@@ -89,7 +81,6 @@ Exponent = [eE] [+-]? [0-9]+ */
     "if"                    { return symbol("if", sym.IF); }
     "else"                  { return symbol("else", sym.ELSE); }
     "while"                 { return symbol("while",sym.WHILE); }
-//    "for"                   { return symbol("for", sym.FOR); }
     "crotofunc"             { return symbol("function", sym.CROTOFUNC); }
     "break"                 { return symbol("break", sym.BREAK); }
     "return"                { return symbol("return", sym.RETURN); }
@@ -120,8 +111,6 @@ Exponent = [eE] [+-]? [0-9]+ */
     ")"                     { return symbol(")", sym.RPAREN); }
     "{"                     { return symbol("{", sym.LBRACE); }
     "}"                     { return symbol("}", sym.RBRACE); }
-//    "["                     { return symbol("[", sym.LBRACK); }
-//    "]"                     { return symbol("]", sym.RBRACK); }
     ";"                     { return symbol(";", sym.SEMICOLON); }
     ","                     { return symbol(",", sym.COMMA); }
 

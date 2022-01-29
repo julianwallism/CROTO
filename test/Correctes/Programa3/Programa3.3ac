@@ -10,7 +10,11 @@ t3 = _copy fibonaccib
 _print t3
 lab1 _skip
 t4 = _copy fibonaccin
+<<<<<<< Updated upstream
 t5 = _copy 1
+=======
+t5 = _copy 0
+>>>>>>> Stashed changes
 t6 = t4 _gt t5
 _if t6 else lab2
 t7 = _copy fibonaccia

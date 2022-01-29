@@ -10,9 +10,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.sound.sampled.SourceDataLine;
-
 import lexic.LexicScanner;
 import semantic.SemanticAnalyzer;
 import semantic.symbols.Program;

@@ -79,8 +79,13 @@ extern scanf
 ; t4 = _copy fibonaccin
 	mov	eax, [fibonaccin]
 	mov dword	[t4], eax
+<<<<<<< Updated upstream
 ; t5 = _copy 1
 	mov	eax, 1
+=======
+; t5 = _copy 0
+	mov	eax, 0
+>>>>>>> Stashed changes
 	mov dword	[t5], eax
 ; t6 = t4 _gt t5
 	mov	eax, [t4]

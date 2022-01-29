@@ -1,4 +1,3 @@
-
 //nasm -f elf -o Programa2.o Programa2.asm && gcc -m32 Programa2.o -o Programa2 && ./Programa2
 
 crotofunc int mayor(int a, int b, int c){
