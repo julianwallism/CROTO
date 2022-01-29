@@ -192,19 +192,32 @@ public class CodeGenerator implements Visitor {
         return newVar("t" + nTempVars++);
     }
 
+    /**
+     * Creates a variable with the given name and puts it into the table of variables.
+     * @param name
+     * @return
+     */
     private String newVar(String name) {
+        //Creates a new variable with the name
         Variable var = new Variable(space);
         var.proc = this.currentProc;
         varTable.put(name, var);
         return name;
     }
-
+    /**
+     * Creates a new label and puts it into the table of labels.
+     * @return
+     */
     public static String newLabel() {
         String lab = "lab" + nLabels++;
         labTable.add(lab);
         return lab;
     }
 
+    /**
+     * Generates the code associated with the program:
+     * calls generate over the methods and the main method.
+     */
     @Override
     public void visit(Program p) {
         for (Method m : p.methods) {
@@ -212,18 +225,28 @@ public class CodeGenerator implements Visitor {
         }
         p.main.check(this);
     }
-
+    /**
+     * Generates the code associated with a method
+     */
     @Override
     public void visit(Method method) {
+        //We set currentProc as the current method, this will allow next nodes 
+        // of the sintactic tree to know the name of the method, used to declare
+        // new variables and to use its label for returns.
         currentProc = method.id.name;
-        String label = newLabel(); // usar method.id.name como label??
+        //We create a new label: the one the program will jump to when calling this function
+        String label = newLabel();
+        //We generate the label and the preamble
         generate(label + " _skip");
         generate("_pmb " + method.id.name);
         ArrayList<String> paramNames = new ArrayList<>();
         for (Method.Parameter param : method.params) {
+            //for each Parameter of the method, we generate the code associated to it, and
+            // we add it to a list
             param.check(this);
             paramNames.add(this.varName);
         }
+        // We add the method to the 
         procTable.put(method.id.name, new Procedure(label, paramNames));
         method.codeBlock.check(this);
     }

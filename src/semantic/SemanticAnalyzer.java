@@ -216,6 +216,11 @@ public class SemanticAnalyzer implements Visitor {
                     error = true;
                     errorManager.writeError("Semantic Error: Line " + fc.line + ", column " + fc.column + ". Variable name expected for scans.");
                     return;
+                } else{
+                    Variable v = table.get(((Expression.Id)e).id.name);
+                    if(v.constant){
+                        error = true;
+                        errorManager.writeError("Semantic Error: Line " + fc.line + ", column " + fc.column + ". Cannot assign value to constant variable.");
                 }
             }
             fc.arguments.get(0).check(this);
