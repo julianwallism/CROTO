@@ -33,27 +33,47 @@ public class SemanticAnalyzer implements Visitor {
         this.methodTable = new HashMap<String, SymbolTable>();
         this.errorManager = errorManager;
     }
-
+    /**
+     * Method that puts id into the methodTable, returns true if successful,
+     *  false if it was already inside the table
+     * @param id
+     * @return
+     */
     private boolean addMethod(String id) {
+        //If the method not in the table, add it.
         if (methodTable.get(id) == null) {
             methodTable.put(id, new SymbolTable());
             return true;
         } else {
+            //If it already was in the table and we called addMethod, return false
+            // which will trigger an error
             return false;
         }
     }
-
+    
     @Override
+    /**
+     * Method that checks the program: calls check on methods
+     * @param p
+     * @return
+     */
     public void visit(Program p) {
         if (p.methods != null) {
+            //For each method of the program, we check it
             ArrayList<Method> methods = p.methods;
             for (Method method : methods) {
                 method.check(this);
             }
         }
+        //Finally, we check the main program, which is not inside the method list
         p.main.check(this);
     }
 
+    /**
+     * Checks method: adds it to methodTable, checks parameters and its codeblock. Also checks
+     * if the return type is not void and if it has a return statement or not.
+     * @param method
+     */
     @Override
     public void visit(Method method) {
         returnOnEnd = false;
@@ -69,34 +89,26 @@ public class SemanticAnalyzer implements Visitor {
             currentMethod = "error" + methodErrors++ + "-" + currentMethod;
             addMethod(currentMethod);
         }
+        //Check all parameters of the method
         for (Method.Parameter param : method.params) {
             param.check(this);
         }
+
         SymbolTable table = this.methodTable.get(currentMethod);
         table.returnType = method.returnType;
         this.methodTable.replace(currentMethod, table);
-        // comprobamos el codigo
+        // Check the code block
         method.codeBlock.check(this);
-
+        // Here we check the returntype of the method. If its void, we do not need to check for a return
+        // statement. Otherwise, we check if there's at least one return statement at the depth of the function
         if (table.returnType != Type.VOID) {
             if (!returnOnEnd) {
+                //If the function doesnt have a return statement at the end, we throw an error.
                 error = true;
                 errorManager.writeError("Line " + method.line + ", column " + method.column + ". Method \"" + currentMethod
                         + "\" missing return statement.");
             }
         }
-
-        // if (method.returnExpression != null) {
-        // method.returnExpression.check(this);
-        // Type expectedType = method.returnType;
-        // if (!returnType.equals(expectedType)) {
-        // error = true;
-        // errorManager.writeError("Line: " + method.line + ", column " + method.column + ". \"" +
-        // expectedType
-        // + "\" return expression expected, found \"" + returnType + "\" instead.");
-        // }
-        // }
-
     }
 
     @Override
@@ -116,35 +128,46 @@ public class SemanticAnalyzer implements Visitor {
 
     @Override
     public void visit(CodeBlock cb) {
-        // SymbolTable table = methodTable.get(currentMethod);
         if (cb.instructions != null) {
+            //For each instruction of the list, we check it.
             for (Instruction instr : cb.instructions) {
                 instr.check(this);
             }
-            // methodTable.replace(currentMethod, table);
         }
     }
 
     @Override
     public void visit(VarDeclaration decl) {
+        //Firstly we get the table of the current method
         SymbolTable table = this.methodTable.get(currentMethod);
+        //We check if there already is a variable or parameter with the same name
         if (table.getParam(decl.id.name) == null && table.get(decl.id.name) == null) {
+            //If the variable is new, we check if it has an expression or if it
+            // only was declared and not assigned a value.
             Variable var;
             if (decl.expr != null) {
+                //If it has an expression, we check it
                 decl.expr.check(this);
+                //We check if the returnType of the expression equals the returntype of the variable
                 if (returnType != decl.type) {
+                    //If they dont match, we throw an error and return.
                     error = true;
                     errorManager.writeError("Line " + decl.line + ", column " + decl.column + ". Variable \"" + decl.id.name
                             + "\" incorrect assigment type: " + returnType + ", expected type was: " + decl.type);
                     return;
                 }
+                //If the types matched, we create the variable with the returnvalue assigned.
                 var = new Variable(decl.constant, decl.type, returnValue);
             } else {
+                //If it doesnt have a value assigned, we create the variable with no value.
                 var = new Variable(decl.constant, decl.type);
             }
+            // Finally, we insert the variable in the vartable of the method and update the table
             table.insert(decl.id.name, var);
             methodTable.replace(currentMethod, table);
         } else {
+            //If the variable was already in the table, it means it was already declared, so we
+            // throw an error.
             error = true;
             errorManager.writeError("Line " + decl.line + ", column " + decl.column + ". Variable \"" + decl.id.name
                     + "\" already declared.");
