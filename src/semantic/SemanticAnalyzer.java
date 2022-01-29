@@ -1,6 +1,7 @@
 package semantic;
 
 import errors.ErrorManager;
+import errors.SemanticException.*;
 import java.util.HashMap;
 
 import java.util.*;
@@ -84,16 +85,12 @@ public class SemanticAnalyzer implements Visitor {
              * checking
              */
             error = true;
-            errorManager.writeError("Semantic Error: Line " + method.line + ", column " + method.column + ". Method \"" + currentMethod
-                    + "\" already declared.");
+            errorManager.writeError(new MethodAlreadyDeclaredException(method.line, method.column, currentMethod));
             currentMethod = "error" + methodErrors++ + "-" + currentMethod;
             addMethod(currentMethod);
         }
         //Check all parameters of the method
-        for (Method.Parameter param : method.params) {
-            param.check(this);
-        }
-
+        method.params.forEach(param -> { param.check(this);});
         SymbolTable table = this.methodTable.get(currentMethod);
         table.returnType = method.returnType;
         this.methodTable.replace(currentMethod, table);
@@ -105,8 +102,7 @@ public class SemanticAnalyzer implements Visitor {
             if (!returnOnEnd) {
                 //If the function doesnt have a return statement at the end, we throw an error.
                 error = true;
-                errorManager.writeError("Semantic Error: Line " + method.line + ", column " + method.column + ". Method \"" + currentMethod
-                        + "\" missing return statement.");
+                errorManager.writeError(new MissingReturnException(method.line, method.column, method.id.name));
             }
         }
     }
@@ -116,12 +112,10 @@ public class SemanticAnalyzer implements Visitor {
         SymbolTable table = methodTable.get(currentMethod);
         if (!table.insertParam(param.id.name, param.type)) {
             error = true;
-            errorManager.writeError("Semantic Error: Line " + param.line + ", column " + param.column + ". Parameter \"" + param.id.name
-                    + "\" already declared.");
+            errorManager.writeError(new ParameterAlreadyDeclaredException(param.line, param.column, param.id.name));
         } else {
             Variable var = table.getParam(param.id.name);
             var.setValue(param.type.getDefaultValue());
-            // si no va, actualizar variable en tabla
             methodTable.replace(currentMethod, table);
         }
     }
@@ -152,8 +146,7 @@ public class SemanticAnalyzer implements Visitor {
                 if (returnType != decl.type) {
                     //If they dont match, we throw an error and return.
                     error = true;
-                    errorManager.writeError("Semantic Error: Line " + decl.line + ", column " + decl.column + ". Variable \"" + decl.id.name
-                            + "\" incorrect assigment type: " + returnType + ", expected type was: " + decl.type);
+                    errorManager.writeError(new IncorrectAssigmentException(decl.line, decl.column, decl.id.name, returnType, decl.type));
                     return;
                 }
                 //If the types matched, we create the variable with the returnvalue assigned.
@@ -169,8 +162,7 @@ public class SemanticAnalyzer implements Visitor {
             //If the variable was already in the table, it means it was already declared, so we
             // throw an error.
             error = true;
-            errorManager.writeError("Semantic Error: Line " + decl.line + ", column " + decl.column + ". Variable \"" + decl.id.name
-                    + "\" already declared.");
+            errorManager.writeError(new VariableAlreadyDeclaredException(decl.line, decl.column, decl.id.name));
         }
     }
 
@@ -182,8 +174,7 @@ public class SemanticAnalyzer implements Visitor {
             var = table.get(assign.id.name);
             if (var == null) {
                 error = true;
-                errorManager.writeError("Semantic Error: Line " + assign.line + ", column " + assign.column + ". Variable \"" + assign.id.name
-                        + "\" not declared.");
+                errorManager.writeError(new VariableNotDeclaredException(assign.line, assign.column, assign.id.name));
                 returnType = Type.VOID;
                 return;
             }
@@ -191,8 +182,7 @@ public class SemanticAnalyzer implements Visitor {
         assign.expr.check(this);
         if (!returnType.equals(var.type)) {
             error = true;
-            errorManager.writeError("Semantic Error: Line " + assign.line + ", column " + assign.column + ". Variable \"" + assign.id.name
-                    + "\" incorrect assigment type: " + returnType + " expected type was: " + var.type);
+            errorManager.writeError(new IncorrectAssigmentException(assign.line, assign.column, assign.id.name, returnType, var.type));
             return;
         }
         
@@ -208,7 +198,6 @@ public class SemanticAnalyzer implements Visitor {
 
     @Override
     public void visit(Statement.FunctionCall fc) {
-        SymbolTable table = methodTable.get(fc.id.name);
         if ((fc.id.name.equals("scan") || fc.id.name.equals("print")) && fc.arguments.size() == 1) {
             if (fc.id.name.equals("scan")) {
                 Expression e = fc.arguments.get(0);
@@ -217,10 +206,12 @@ public class SemanticAnalyzer implements Visitor {
                     errorManager.writeError("Semantic Error: Line " + fc.line + ", column " + fc.column + ". Variable name expected for scans.");
                     return;
                 } else{
+                    SymbolTable table = methodTable.get(currentMethod);
                     Variable v = table.get(((Expression.Id)e).id.name);
                     if(v.constant){
                         error = true;
                         errorManager.writeError("Semantic Error: Line " + fc.line + ", column " + fc.column + ". Cannot assign value to constant variable.");
+                    }
                 }
             }
             fc.arguments.get(0).check(this);
@@ -228,6 +219,7 @@ public class SemanticAnalyzer implements Visitor {
             returnValue = Type.VOID.getDefaultValue();
             return;
         }
+        SymbolTable table = methodTable.get(fc.id.name);
         if (table == null) {
             errorManager.writeError("Semantic Error: Line " + fc.line + ", column " + fc.column + ". Method declaration not found.");
             error = true;

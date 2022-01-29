@@ -36,6 +36,16 @@ public class ErrorManager {
         System.err.println(error);
     }
     
+    public void writeError(CrotoException exception){
+        try {
+            this.bw.write(exception.toString());
+            this.bw.newLine();
+        } catch (IOException ex) {
+            System.err.println("Error when writing to Errors.txt + " + ex.toString());
+        }  
+        System.err.println(exception);
+    }
+    
     public void closeManager(){
         try {
             this.bw.close();

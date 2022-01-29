@@ -1,1 +1,2 @@
-Lexic error at line 4, column 5: Illegal Character ^
+Semantic Error: Line 6, column 15. Method "hola" already declared.
+Semantic Error: Line 6, column 15. Method "hola" missing return statement.

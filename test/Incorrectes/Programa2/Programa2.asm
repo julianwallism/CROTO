@@ -2,7 +2,6 @@ section .data
 t4:	dd	0x0
 t5:	dd	0x0
 t6:	dd	0x0
-t7:	dd	0x0
 mainb:	dd	0x0
 maina:	dd	0x0
 t0:	dd	0x0
@@ -28,53 +27,42 @@ extern scanf
 ; maina = _copy t0
 	mov	eax, [t0]
 	mov dword	[maina], eax
-; t1 = _copy maina
-	mov	eax, [maina]
+; t1 = _copy mainb
+	mov	eax, [mainb]
 	mov dword	[t1], eax
 ; _scan t1
 	push	t1
 	push	fmtin
 	call	scanf
 	add	esp, 8
-; maina = _copy t1
+; mainb = _copy t1
 	mov	eax, [t1]
-	mov dword	[maina], eax
-; t2 = _copy mainb
-	mov	eax, [mainb]
-	mov dword	[t2], eax
-; _scan t2
-	push	t2
-	push	fmtin
-	call	scanf
-	add	esp, 8
-; mainb = _copy t2
-	mov	eax, [t2]
 	mov dword	[mainb], eax
-; t4 = _copy maina
+; t3 = _copy maina
 	mov	eax, [maina]
-	mov dword	[t4], eax
-; t5 = _copy mainb
+	mov dword	[t3], eax
+; t4 = _copy mainb
 	mov	eax, [mainb]
-	mov dword	[t5], eax
-; t3 = t4 _gt t5
-	mov	eax, [t4]
-	mov	ebx, [t5]
+	mov dword	[t4], eax
+; t2 = t3 _gt t4
+	mov	eax, [t3]
+	mov	ebx, [t4]
 	cmp	eax, ebx
 	jg	lab3
-	mov dword [t3], 0
+	mov dword [t2], 0
 	jmp	lab4
 	lab3:	nop
-	mov dword [t3], -1
+	mov dword [t2], -1
 	lab4:	nop
-; _if t3 else lab1
-	mov	eax, [t3]
+; _if t2 else lab1
+	mov	eax, [t2]
 	cmp	eax, 0
 	je	lab1
-; t6 = _copy maina
+; t5 = _copy maina
 	mov	eax, [maina]
-	mov dword	[t6], eax
-; _print t6
-	mov	eax, [t6]
+	mov dword	[t5], eax
+; _print t5
+	mov	eax, [t5]
 	push	eax
 	push	fmtout
 	call	printf
@@ -83,11 +71,11 @@ extern scanf
 	jmp	lab2
 ; lab1 _skip
 	lab1 :	nop
-; t7 = _copy mainb
+; t6 = _copy mainb
 	mov	eax, [mainb]
-	mov dword	[t7], eax
-; _print t7
-	mov	eax, [t7]
+	mov dword	[t6], eax
+; _print t6
+	mov	eax, [t6]
 	push	eax
 	push	fmtout
 	call	printf
