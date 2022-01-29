@@ -66,6 +66,7 @@ public class Compiler {
         try {
             this.prog = (Program) this.parser.parse().value;
             if (this.parser.error) {
+                this.errManager.closeManager();
                 System.exit(0);
             }
         } catch (Exception ex) {
@@ -77,6 +78,7 @@ public class Compiler {
         this.analyzer = new SemanticAnalyzer(errManager);
         prog.check(this.analyzer);
         if (this.analyzer.error) {
+            this.errManager.closeManager();
             System.exit(0);
         }
     }
@@ -101,7 +103,7 @@ public class Compiler {
         // String outFile = args[1];
 
         Compiler comp = new Compiler();
-        comp.compile("test/Incorrectes/Programa3/Programa3.croto", "test/Incorrectes/Programa3/Programa3");
+        comp.compile("test/Incorrectes/Programa2/Programa2.croto", "test/Incorrectes/Programa2/Programa2");
         // generationTester("Test");
     }
 }

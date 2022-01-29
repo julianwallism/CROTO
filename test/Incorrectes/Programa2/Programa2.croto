@@ -1,6 +1,7 @@
 //No se pueden assignar un valor a una constante
 
 crotofunc main(){
+    ^
     const int a = 2;
     int b;
 

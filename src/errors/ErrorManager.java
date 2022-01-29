@@ -27,13 +27,13 @@ public class ErrorManager {
     }
     
     public void writeError(String error){
-        System.err.println(error);
         try {
             this.bw.write(error);
             this.bw.newLine();
         } catch (IOException ex) {
             System.err.println("Error when writing to Errors.txt + " + ex.toString());
-        }       
+        }  
+        System.err.println(error);
     }
     
     public void closeManager(){
