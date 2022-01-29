@@ -9,7 +9,7 @@ package lexic;
 import java_cup.runtime.Symbol;
 import sintactic.symbols.CrotoSymbolFactory;
 import java_cup.runtime.ComplexSymbolFactory.Location;
-import sintactic.symbols.sym;
+import sintactic.sym;
 
 // See https://github.com/jflex-de/jflex/issues/222
 @SuppressWarnings("FallThrough")

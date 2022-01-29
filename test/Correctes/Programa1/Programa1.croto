@@ -3,22 +3,9 @@
 crotofunc main(){
     bool a = True;
 
-    bool b = False;
-    print(a);
-    print(b);
+    bool b = True < False;
 
-    bool c = (a and b) or not b;
-
-    if(c){
-        print(1);
-    } else{
-        print(0);
-    }
-
-    int d = 9;
-
-    int e = -d;
-
-    print(e);
+    int c = 7 + print(7);
+    
 
 }

@@ -172,7 +172,7 @@ public class SemanticAnalyzer implements Visitor {
                 if (returnType != decl.type) {
                     error = true;
                     writeError("Line " + decl.line + ", column " + decl.column + ". Variable \"" + decl.id.name
-                            + "\" incorrect assigment type: " + returnType + " expected type was: " + decl.type);
+                            + "\" incorrect assigment type: " + returnType + ", expected type was: " + decl.type);
                     return;
                 }
                 var = new Variable(decl.constant, decl.type, returnValue);
@@ -227,7 +227,7 @@ public class SemanticAnalyzer implements Visitor {
                 Expression e = fc.arguments.get(0);
                 if (!(e instanceof Expression.Id)) {
                     error = true;
-                    writeError("Line " + fc.line + ", column " + fc.column + ". Variable name expected.");
+                    writeError("Line " + fc.line + ", column " + fc.column + ". Variable name expected for scans.");
                     return;
                 }
             }
@@ -348,7 +348,7 @@ public class SemanticAnalyzer implements Visitor {
         if (returnType != Type.INTEGER) {
             error = true;
             writeError("Line " + aritm.line + ", column " + aritm.column
-                    + ". Expected type was Integer but Boolean found.");
+                    + ". Expected type "+aritm.type+" is Integer but "+returnType+" found.");
             return;
         }
         Integer leftValue = (Integer) returnValue;
@@ -356,7 +356,7 @@ public class SemanticAnalyzer implements Visitor {
         if (returnType != Type.INTEGER) {
             error = true;
             writeError("Line " + aritm.line + ", column " + aritm.column
-                    + ". Expected type was Integer but Boolean found.");
+                    + ". Expected type for "+aritm.type+" is Integer but "+returnType+" found.");
             return;
         }
         returnValue = aritm.type.doOperation(leftValue, (Integer) returnValue);
@@ -370,7 +370,8 @@ public class SemanticAnalyzer implements Visitor {
             if (returnType == Type.INTEGER) {
                 error = true;
                 writeError("Line " + bool.line + ", column " + bool.column
-                        + ". Expected type was Boolean but Integer found.");
+                        + ". Expected type is Boolean but Integer found.");
+                        returnType = Type.BOOLEAN;
                 return;
             }
             returnType = Type.BOOLEAN;
@@ -383,7 +384,9 @@ public class SemanticAnalyzer implements Visitor {
                 if (rightType != Type.BOOLEAN || returnType != Type.BOOLEAN) {
                     error = true;
                     writeError("Line " + bool.line + ", column " + bool.column
-                            + ". Expected type was Boolean but Integer found.");
+                            + ". Expected type for \""+ bool.type +"\" is Boolean but Integer found.");
+                            returnType = Type.BOOLEAN;
+
                     return;
                 }
                 returnValue = bool.type.doOperation(left, right);
@@ -391,7 +394,7 @@ public class SemanticAnalyzer implements Visitor {
                 if (rightType != Type.INTEGER || returnType != Type.INTEGER) {
                     error = true;
                     writeError("Line " + bool.line + ", column " + bool.column
-                            + ". Expected type was Integer but Boolean found.");
+                            + ". Expected type for \""+ bool.type +"\" is Integer but Boolean found.");
                     return;
                 }
                 returnValue = bool.type.doOperation(left, right);
@@ -402,10 +405,11 @@ public class SemanticAnalyzer implements Visitor {
 
     @Override
     public void visit(Expression.FunctionCall fc) {
-        if (fc.id.name == "print" || fc.id.name == "scan") {
-            error = true;
-            writeError("Line " + fc.line + ", column " + fc.column + ". \"" + fc.id.name
-                    + "\" function does not return any value.");
+        if (fc.id.name.equals("print") || fc.id.name.equals("scan")) {
+            // error = true;
+            // writeError("Line " + fc.line + ", column " + fc.column + ". \"" + fc.id.name
+            //         + "\" function does not return any value.");
+            returnType = Type.VOID;
             return;
         }
         SymbolTable table = methodTable.get(fc.id.name);
