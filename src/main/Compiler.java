@@ -41,10 +41,10 @@ public class Compiler {
     }
 
     public void compile(String inFile, String outFile) {
-        this.scan("test/" + inFile);
+        this.scan(inFile);
         this.parse();
         this.analyze(outFile);
-        this.generate("test/" + outFile);
+        this.generate(outFile);
         System.out.println("File Compiled Succesfully.");
     }
 
@@ -90,37 +90,6 @@ public class Compiler {
         this.generator.writeAssembly(outFile);
     }
 
-    private static void generationTester(String filename) {
-        try {
-            FileReader fr = new FileReader("test/" + filename + ".croto");
-            System.out.println("Reading and scanning source file...");
-            BufferedReader br = new BufferedReader(fr);
-            CrotoSymbolFactory symFact = new CrotoSymbolFactory();
-            LexicScanner lex = new LexicScanner(br, symFact);
-            SyntaxParser p = new SyntaxParser(lex, symFact);
-            System.out.println("Parsing source code...");
-            Program program = (Program) p.parse().value;
-            System.out.println("Analyzing source code...");
-            SemanticAnalyzer s = new SemanticAnalyzer();
-            s.openFile(filename);
-            program.check(s);
-            s.closeFile();
-            if (s.error) {
-                System.err.println("Errors found. Compilation stopped.");
-            } else {
-                CodeGenerator cg = new CodeGenerator();
-                System.out.println("Generating 3ac...");
-                cg.generate3ac(program);
-                System.out.println("Writing 3ac to file...");
-                cg.write3ac("test/" + filename);
-                cg.generateAssembly();
-                cg.writeAssembly("test/" + filename);
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(Compiler.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
     /**
      * Usage: java -jar Croto.jar [input file] [output file]
      * 
@@ -131,7 +100,7 @@ public class Compiler {
         // String outFile = args[1];
 
         Compiler comp = new Compiler();
-        comp.compile("Correctes/Programa1/Programa1.croto", "Programa1");
+        comp.compile("test/Incorrectes/Programa1/Programa1.croto", "test/Incorrectes/Programa1/Programa1");
         // generationTester("Test");
     }
 }

@@ -1,3 +1,0 @@
-Semantic Error: Line 6, column 14. Expected type for "LOWER" is Integer but Boolean found.
-Semantic Error: Line 8, column 13. Expected type for ADDITION is Integer but VOID found.
-Semantic Error: Line 8, column 5. Variable "c" incorrect assigment type: VOID, expected type was: INTEGER

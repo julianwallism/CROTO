@@ -202,18 +202,19 @@ public class SemanticAnalyzer implements Visitor {
                 return;
             }
         }
-        if (!var.setValue(var.type.convertValueType(returnValue))) {
-            error = true;
-            writeError("Line " + assign.line + ", column " + assign.column
-                    + ". Can't assign value to constant variable: \"" + assign.id.name
-                    + "\".");
-            return;
-        }
         assign.expr.check(this);
         if (!returnType.equals(var.type)) {
             error = true;
             writeError("Line " + assign.line + ", column " + assign.column + ". Variable \"" + assign.id.name
                     + "\" incorrect assigment type: " + returnType + " expected type was: " + var.type);
+            return;
+        }
+        
+        if (!var.setValue(var.type.convertValueType(returnValue))) {
+            error = true;
+            writeError("Line " + assign.line + ", column " + assign.column
+                    + ". Can't assign value to constant variable: \"" + assign.id.name
+                    + "\".");
             return;
         }
         this.methodTable.replace(currentMethod, table);

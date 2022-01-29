@@ -1,29 +1,18 @@
-//nasm -f elf -o Programa3.o Programa3.asm && gcc -m32 Programa3.o -o Programa3 && ./Programa3
+//nasm -f elf -o Programa4.o Programa4.asm && gcc -m32 Programa4.o -o Programa4 && ./Programa4
 
-crotofunc int fibonacci(int n){
-    int ret;
-    int a = 0; 
-    int b = 1;
-    print(a);
-    print(b);
-    while(n>1){
-        ret = a + b;
-        a=b;
-        b=ret;
-        print(ret);
-        n=n-1;
+crotofunc int modulo(int a, int b){  
+    int quocient;
+    if(b<=0){
+        return -1;
     }
-    return ret;
+    quocient = a/b;
+    return a-b*quocient;
 }
 
 crotofunc main(){
-    int resultado;
-    const int a;
+    int a;
+    int b;
     scan(a);
-    if(a>1){
-        resultado = fibonacci(a);
-    } else{
-        resultado = a;
-    }
-    print(resultado);
+    scan(b);
+    print(modulo(a,b));
 }

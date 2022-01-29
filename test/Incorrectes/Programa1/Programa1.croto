@@ -1,4 +1,4 @@
-//nasm -f elf -o Programa2.o Programa2.asm && gcc -m32 Programa2.o -o Programa2 && ./Programa2
+//nasm -f elf -o Programa1.o Programa1.asm && gcc -m32 Programa1.o -o Programa1 && ./Programa1
 
 //El main tiene que ir al final
 
