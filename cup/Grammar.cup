@@ -9,8 +9,16 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import sintactic.symbols.CrotoSymbol;
 import semantic.Type;
 import semantic.symbols.*;
+import errors.ErrorManager;
 
 parser code  {: 
+
+    ErrorManager errorManager;
+    
+    public SyntaxParser(java_cup.runtime.Scanner s, java_cup.runtime.SymbolFactory sf, ErrorManager errManager){
+        super(s,sf);
+        errorManager = errManager;
+    }
 
     public boolean error = false;
 
@@ -18,7 +26,7 @@ parser code  {:
     public void report_error(String message, Object info) {
         if (info instanceof CrotoSymbol) {
             CrotoSymbol cs = (CrotoSymbol) info;
-            System.err.println(message + " at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn());
+            errorManager.writeError(message + " at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn());
         }
     }
     
@@ -26,9 +34,9 @@ parser code  {:
         if (info instanceof CrotoSymbol) {
             CrotoSymbol cs = (CrotoSymbol) info;
             if (cs.value != null)
-                System.err.println(message + " at \"" + cs.value + "\" at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
+                errorManager.writeError(message + " at \"" + cs.value + "\" at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
             else 
-                System.err.println(message + " at \"" + cs.getName() + "\" at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
+                errorManager.writeError(message + " at \"" + cs.getName() + "\" at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
         }
     }
 

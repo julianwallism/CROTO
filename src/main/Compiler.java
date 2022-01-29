@@ -5,11 +5,10 @@
 package main;
 
 import code_generation.CodeGenerator;
+import errors.ErrorManager;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import lexic.LexicScanner;
 import semantic.SemanticAnalyzer;
 import semantic.symbols.Program;
@@ -26,6 +25,7 @@ public class Compiler {
 
     private FileReader fr;
     private BufferedReader reader;
+    private ErrorManager errManager;
     private final CrotoSymbolFactory symFact;
 
     private LexicScanner scanner;
@@ -37,14 +37,17 @@ public class Compiler {
     private Program prog;
 
     public Compiler() {
+        this.errManager = new ErrorManager();
         this.symFact = new CrotoSymbolFactory();
     }
 
     public void compile(String inFile, String outFile) {
+        this.errManager.open(outFile);
         this.scan(inFile);
         this.parse();
         this.analyze(outFile);
         this.generate(outFile);
+        this.errManager.closeManager();
         System.out.println("File Compiled Succesfully.");
     }
 
@@ -55,11 +58,11 @@ public class Compiler {
         } catch (FileNotFoundException ex) {
             System.err.println(ex.toString());
         }
-        this.scanner = new LexicScanner(reader, symFact);
+        this.scanner = new LexicScanner(reader, symFact, errManager);
     }
 
     private void parse() {
-        this.parser = new SyntaxParser(scanner, symFact);
+        this.parser = new SyntaxParser(scanner, symFact, errManager);
         try {
             this.prog = (Program) this.parser.parse().value;
             if (this.parser.error) {
@@ -71,10 +74,8 @@ public class Compiler {
     }
 
     private void analyze(String filename) {
-        this.analyzer = new SemanticAnalyzer();
-        this.analyzer.openFile(filename);
+        this.analyzer = new SemanticAnalyzer(errManager);
         prog.check(this.analyzer);
-        this.analyzer.closeFile();
         if (this.analyzer.error) {
             System.exit(0);
         }
@@ -100,7 +101,7 @@ public class Compiler {
         // String outFile = args[1];
 
         Compiler comp = new Compiler();
-        comp.compile("test/Incorrectes/Programa1/Programa1.croto", "test/Incorrectes/Programa1/Programa1");
+        comp.compile("test/Incorrectes/Programa3/Programa3.croto", "test/Incorrectes/Programa3/Programa3");
         // generationTester("Test");
     }
 }

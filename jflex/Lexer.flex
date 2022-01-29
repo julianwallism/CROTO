@@ -3,9 +3,10 @@
 package lexic;
 
 import java_cup.runtime.Symbol;
-import sintactic.symbols.CrotoSymbolFactory;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import sintactic.sym;
+import sintactic.symbols.CrotoSymbolFactory;
+import errors.ErrorManager;
 %%
 
 /* Options and declarations */
@@ -20,10 +21,12 @@ import sintactic.sym;
 %{
     StringBuffer string = new StringBuffer();
     CrotoSymbolFactory symbolFactory;
+    ErrorManager errorManager;
 
-    public Lexer(java.io.Reader in, CrotoSymbolFactory sf){
+    public LexicScanner(java.io.Reader in, CrotoSymbolFactory sf, ErrorManager errManager){
 	this(in);
 	symbolFactory = sf;
+        errorManager = errManager;
     }
 
     private Symbol symbol(String name, int sym) {
@@ -43,7 +46,7 @@ import sintactic.sym;
     }
        
     private void error(String message) {
-        System.err.println("Lexic error at line " + (yyline+1) + ", column " + (yycolumn+1) + ": " + message);    
+        errorManager.writeError("Lexic error at line " + (yyline+1) + ", column " + (yycolumn+1) + ": " + message);    
     }
 %}
 

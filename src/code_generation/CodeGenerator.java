@@ -2,11 +2,7 @@ package code_generation;
 
 import java.util.*;
 import java.util.Collections;
-
-import javax.sound.sampled.SourceDataLine;
-
 import code_generation.Instruction.Operation;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -172,7 +168,7 @@ public class CodeGenerator implements Visitor {
     }
 
     /* EJECUCION NASM */
- /* nasm –f elf –o program.o program.asm */
+    /* nasm –f elf –o program.o program.asm */
     public void writeAssembly(String filename) {
         try {
             FileWriter fw = new FileWriter(filename + ".asm");
@@ -360,7 +356,7 @@ public class CodeGenerator implements Visitor {
         if (bool.type == Expression.Boolean.Type.NOT) {
             bool.right.check(this);
             generate(tmp + " = " + bool.type.getInstruction() + this.varName);
-        } else{
+        } else {
             bool.left.check(this);
             String left = varName;
             bool.right.check(this);

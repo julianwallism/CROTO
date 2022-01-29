@@ -5,16 +5,14 @@
 
 package sintactic;
 
+import errors.ErrorManager;
 import java_cup.runtime.*;
 import java.util.LinkedList;
 import java.util.ArrayList;
-import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
-import java_cup.runtime.ComplexSymbolFactory.Location;
 import sintactic.symbols.CrotoSymbol;
 import semantic.Type;
 import semantic.symbols.*;
 import java_cup.runtime.ComplexSymbolFactory.Location;
-import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20160615 (GIT 4ac7450) generated parser.
   */
@@ -390,13 +388,20 @@ public class SyntaxParser extends java_cup.runtime.lr_parser {
 
  
 
+    ErrorManager errorManager;
+    
+    public SyntaxParser(java_cup.runtime.Scanner s, java_cup.runtime.SymbolFactory sf, ErrorManager errManager){
+        super(s,sf);
+        errorManager = errManager;
+    }
+
     public boolean error = false;
 
    @Override
     public void report_error(String message, Object info) {
         if (info instanceof CrotoSymbol) {
             CrotoSymbol cs = (CrotoSymbol) info;
-            System.err.println(message + " at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn());
+            errorManager.writeError(message + " at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn());
         }
     }
     
@@ -404,9 +409,9 @@ public class SyntaxParser extends java_cup.runtime.lr_parser {
         if (info instanceof CrotoSymbol) {
             CrotoSymbol cs = (CrotoSymbol) info;
             if (cs.value != null)
-                System.err.println(message + " at \"" + cs.value + "\" at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
+                errorManager.writeError(message + " at \"" + cs.value + "\" at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
             else 
-                System.err.println(message + " at \"" + cs.getName() + "\" at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
+                errorManager.writeError(message + " at \"" + cs.getName() + "\" at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
         }
     }
 

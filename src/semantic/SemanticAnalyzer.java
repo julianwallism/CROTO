@@ -1,11 +1,9 @@
 package semantic;
 
+import errors.ErrorManager;
 import java.util.HashMap;
 
-import java.io.*;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import semantic.symbol_table.*;
 import semantic.symbols.*;
 import semantic.symbols.Method.Parameter;
@@ -19,44 +17,21 @@ public class SemanticAnalyzer implements Visitor {
     /* Return */
     private Type returnType;
     private Object returnValue;
-    private FileWriter fw = null;
-    private BufferedWriter bw = null;
+
     /* Errors */
+    private ErrorManager errorManager;
     private int methodErrors;
     public boolean error;
     private boolean inLoop = false;
     private boolean inIfElse = false;
     private boolean returnOnEnd = false;
 
-    public SemanticAnalyzer() {
+    public SemanticAnalyzer(ErrorManager errorManager) {
         returnValue = currentMethod = null;
         methodErrors = 0;
         error = false;
         this.methodTable = new HashMap<String, SymbolTable>();
-
-    }
-
-    public void openFile(String filename) {
-        try {
-            this.fw = new FileWriter(filename + "Errors.txt");
-            this.bw = new BufferedWriter(fw);
-        } catch (IOException ex) {
-            System.err.println("Error when writing to Errors.txt + " + ex.toString());
-        }
-    }
-
-    public void closeFile() {
-        try {
-            this.bw.close();
-        } catch (IOException ex) {
-            Logger.getLogger(SemanticAnalyzer.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                this.fw.close();
-            } catch (Exception ex) {
-                Logger.getLogger(SemanticAnalyzer.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        this.errorManager = errorManager;
     }
 
     private boolean addMethod(String id) {
@@ -65,18 +40,6 @@ public class SemanticAnalyzer implements Visitor {
             return true;
         } else {
             return false;
-        }
-    }
-
-    private void writeError(String message) {
-        String ret = "Semantic Error: ";
-        ret += message;
-        System.err.println(ret);
-        try {
-            this.bw.write(ret);
-            this.bw.newLine();
-        } catch (IOException ex) {
-            System.err.println("Error when writing to Errors.txt");
         }
     }
 
@@ -101,7 +64,7 @@ public class SemanticAnalyzer implements Visitor {
              * checking
              */
             error = true;
-            writeError("Line " + method.line + ", column " + method.column + ". Method \"" + currentMethod
+            errorManager.writeError("Line " + method.line + ", column " + method.column + ". Method \"" + currentMethod
                     + "\" already declared.");
             currentMethod = "error" + methodErrors++ + "-" + currentMethod;
             addMethod(currentMethod);
@@ -118,7 +81,7 @@ public class SemanticAnalyzer implements Visitor {
         if (table.returnType != Type.VOID) {
             if (!returnOnEnd) {
                 error = true;
-                writeError("Line " + method.line + ", column " + method.column + ". Method \"" + currentMethod
+                errorManager.writeError("Line " + method.line + ", column " + method.column + ". Method \"" + currentMethod
                         + "\" missing return statement.");
             }
         }
@@ -128,7 +91,7 @@ public class SemanticAnalyzer implements Visitor {
         // Type expectedType = method.returnType;
         // if (!returnType.equals(expectedType)) {
         // error = true;
-        // writeError("Line: " + method.line + ", column " + method.column + ". \"" +
+        // errorManager.writeError("Line: " + method.line + ", column " + method.column + ". \"" +
         // expectedType
         // + "\" return expression expected, found \"" + returnType + "\" instead.");
         // }
@@ -141,7 +104,7 @@ public class SemanticAnalyzer implements Visitor {
         SymbolTable table = methodTable.get(currentMethod);
         if (!table.insertParam(param.id.name, param.type)) {
             error = true;
-            writeError("Line " + param.line + ", column " + param.column + ". Parameter \"" + param.id.name
+            errorManager.writeError("Line " + param.line + ", column " + param.column + ". Parameter \"" + param.id.name
                     + "\" already declared.");
         } else {
             Variable var = table.getParam(param.id.name);
@@ -171,7 +134,7 @@ public class SemanticAnalyzer implements Visitor {
                 decl.expr.check(this);
                 if (returnType != decl.type) {
                     error = true;
-                    writeError("Line " + decl.line + ", column " + decl.column + ". Variable \"" + decl.id.name
+                    errorManager.writeError("Line " + decl.line + ", column " + decl.column + ". Variable \"" + decl.id.name
                             + "\" incorrect assigment type: " + returnType + ", expected type was: " + decl.type);
                     return;
                 }
@@ -183,7 +146,7 @@ public class SemanticAnalyzer implements Visitor {
             methodTable.replace(currentMethod, table);
         } else {
             error = true;
-            writeError("Line " + decl.line + ", column " + decl.column + ". Variable \"" + decl.id.name
+            errorManager.writeError("Line " + decl.line + ", column " + decl.column + ". Variable \"" + decl.id.name
                     + "\" already declared.");
         }
     }
@@ -196,7 +159,7 @@ public class SemanticAnalyzer implements Visitor {
             var = table.get(assign.id.name);
             if (var == null) {
                 error = true;
-                writeError("Line " + assign.line + ", column " + assign.column + ". Variable \"" + assign.id.name
+                errorManager.writeError("Line " + assign.line + ", column " + assign.column + ". Variable \"" + assign.id.name
                         + "\" not declared.");
                 returnType = Type.VOID;
                 return;
@@ -205,14 +168,14 @@ public class SemanticAnalyzer implements Visitor {
         assign.expr.check(this);
         if (!returnType.equals(var.type)) {
             error = true;
-            writeError("Line " + assign.line + ", column " + assign.column + ". Variable \"" + assign.id.name
+            errorManager.writeError("Line " + assign.line + ", column " + assign.column + ". Variable \"" + assign.id.name
                     + "\" incorrect assigment type: " + returnType + " expected type was: " + var.type);
             return;
         }
         
         if (!var.setValue(var.type.convertValueType(returnValue))) {
             error = true;
-            writeError("Line " + assign.line + ", column " + assign.column
+            errorManager.writeError("Line " + assign.line + ", column " + assign.column
                     + ". Can't assign value to constant variable: \"" + assign.id.name
                     + "\".");
             return;
@@ -228,7 +191,7 @@ public class SemanticAnalyzer implements Visitor {
                 Expression e = fc.arguments.get(0);
                 if (!(e instanceof Expression.Id)) {
                     error = true;
-                    writeError("Line " + fc.line + ", column " + fc.column + ". Variable name expected for scans.");
+                    errorManager.writeError("Line " + fc.line + ", column " + fc.column + ". Variable name expected for scans.");
                     return;
                 }
             }
@@ -238,14 +201,14 @@ public class SemanticAnalyzer implements Visitor {
             return;
         }
         if (table == null) {
-            writeError("Line " + fc.line + ", column " + fc.column + ". Method declaration not found.");
+            errorManager.writeError("Line " + fc.line + ", column " + fc.column + ". Method declaration not found.");
             error = true;
             return;
         }
         ArrayList<Expression> args = fc.arguments;
         HashMap<String, Variable> params = table.getParamTable();
         if (args.size() != params.size()) {
-            writeError("Line " + fc.line + ", " + fc.column
+            errorManager.writeError("Line " + fc.line + ", " + fc.column
                     + ". Number of parameters doesnt match with method declaration.");
         } else {
             Iterator it = params.entrySet().iterator();
@@ -254,7 +217,7 @@ public class SemanticAnalyzer implements Visitor {
                 Variable param = (Variable) ((Map.Entry) it.next()).getValue();
                 args.get(counter).check(this);
                 if (!returnType.equals(param.type)) {
-                    writeError("Line " + fc.line + ", column " + fc.column + ". " + param.type + " expected but "
+                    errorManager.writeError("Line " + fc.line + ", column " + fc.column + ". " + param.type + " expected but "
                             + returnType + " found.");
                 }
                 counter++;
@@ -274,7 +237,7 @@ public class SemanticAnalyzer implements Visitor {
         ifStat.expr.check(this);
         if (returnType != Type.BOOLEAN) {
             error = true;
-            writeError("Line " + ifStat.line + ", column " + ifStat.column + ". Expression not of BOOLEAN type.");
+            errorManager.writeError("Line " + ifStat.line + ", column " + ifStat.column + ". Expression not of BOOLEAN type.");
         }
         SymbolTable table = methodTable.get(currentMethod);
         table.enterScope();
@@ -297,7 +260,7 @@ public class SemanticAnalyzer implements Visitor {
         whileStat.expr.check(this);
         if (returnType != Type.BOOLEAN) {
             error = true;
-            writeError("Line " + whileStat.line + ", column " + whileStat.column + ". Expression not of BOOLEAN type.");
+            errorManager.writeError("Line " + whileStat.line + ", column " + whileStat.column + ". Expression not of BOOLEAN type.");
         }
         SymbolTable table = methodTable.get(currentMethod);
         table.enterScope();
@@ -313,7 +276,7 @@ public class SemanticAnalyzer implements Visitor {
         if (returnStat.expr == null) {
             if (table.returnType != Type.VOID) {
                 error = true;
-                writeError("Line: " + returnStat.line + ", column " + returnStat.column + ". Unexpected return value.");
+                errorManager.writeError("Line: " + returnStat.line + ", column " + returnStat.column + ". Unexpected return value.");
             } else {
                 if (!inIfElse || !inLoop) {
                     returnOnEnd = true;
@@ -325,7 +288,7 @@ public class SemanticAnalyzer implements Visitor {
             Type expected = table.returnType;
             if (!expected.equals(returnType)) {
                 error = true;
-                writeError("Line: " + returnStat.line + ", column " + returnStat.column + ". \"" + expected
+                errorManager.writeError("Line: " + returnStat.line + ", column " + returnStat.column + ". \"" + expected
                         + "\" return expression expected, found \"" + returnType + "\" instead.");
             } else {
                 if (!inIfElse || !inLoop) {
@@ -339,7 +302,7 @@ public class SemanticAnalyzer implements Visitor {
     public void visit(Statement.Break breakStat) {
         if (!this.inLoop) {
             error = true;
-            writeError("Line " + breakStat.line + ", column " + breakStat.column + ". Unexpected break statement.");
+            errorManager.writeError("Line " + breakStat.line + ", column " + breakStat.column + ". Unexpected break statement.");
         }
     }
 
@@ -348,7 +311,7 @@ public class SemanticAnalyzer implements Visitor {
         aritm.left.check(this);
         if (returnType != Type.INTEGER) {
             error = true;
-            writeError("Line " + aritm.line + ", column " + aritm.column
+            errorManager.writeError("Line " + aritm.line + ", column " + aritm.column
                     + ". Expected type "+aritm.type+" is Integer but "+returnType+" found.");
             return;
         }
@@ -356,7 +319,7 @@ public class SemanticAnalyzer implements Visitor {
         aritm.right.check(this);
         if (returnType != Type.INTEGER) {
             error = true;
-            writeError("Line " + aritm.line + ", column " + aritm.column
+            errorManager.writeError("Line " + aritm.line + ", column " + aritm.column
                     + ". Expected type for "+aritm.type+" is Integer but "+returnType+" found.");
             return;
         }
@@ -370,7 +333,7 @@ public class SemanticAnalyzer implements Visitor {
         if (bool.type == Expression.Boolean.Type.NOT) {
             if (returnType == Type.INTEGER) {
                 error = true;
-                writeError("Line " + bool.line + ", column " + bool.column
+                errorManager.writeError("Line " + bool.line + ", column " + bool.column
                         + ". Expected type is Boolean but Integer found.");
                         returnType = Type.BOOLEAN;
                 return;
@@ -384,7 +347,7 @@ public class SemanticAnalyzer implements Visitor {
             if (bool.type == Expression.Boolean.Type.AND || bool.type == Expression.Boolean.Type.OR) {
                 if (rightType != Type.BOOLEAN || returnType != Type.BOOLEAN) {
                     error = true;
-                    writeError("Line " + bool.line + ", column " + bool.column
+                    errorManager.writeError("Line " + bool.line + ", column " + bool.column
                             + ". Expected type for \""+ bool.type +"\" is Boolean but Integer found.");
                             returnType = Type.BOOLEAN;
 
@@ -394,7 +357,7 @@ public class SemanticAnalyzer implements Visitor {
             } else {
                 if (rightType != Type.INTEGER || returnType != Type.INTEGER) {
                     error = true;
-                    writeError("Line " + bool.line + ", column " + bool.column
+                    errorManager.writeError("Line " + bool.line + ", column " + bool.column
                             + ". Expected type for \""+ bool.type +"\" is Integer but Boolean found.");
                     return;
                 }
@@ -408,21 +371,21 @@ public class SemanticAnalyzer implements Visitor {
     public void visit(Expression.FunctionCall fc) {
         if (fc.id.name.equals("print") || fc.id.name.equals("scan")) {
             // error = true;
-            // writeError("Line " + fc.line + ", column " + fc.column + ". \"" + fc.id.name
+            // errorManager.writeError("Line " + fc.line + ", column " + fc.column + ". \"" + fc.id.name
             //         + "\" function does not return any value.");
             returnType = Type.VOID;
             return;
         }
         SymbolTable table = methodTable.get(fc.id.name);
         if (table == null) {
-            writeError("Line " + fc.line + ", column " + fc.column + ". Method declaration not found.");
+            errorManager.writeError("Line " + fc.line + ", column " + fc.column + ". Method declaration not found.");
             error = true;
             return;
         }
         ArrayList<Expression> args = fc.arguments;
         HashMap<String, Variable> params = table.getParamTable();
         if (args.size() != params.size()) {
-            writeError("Line " + fc.line + ", " + fc.column
+            errorManager.writeError("Line " + fc.line + ", " + fc.column
                     + ". Number of parameters doesnt match with method declaration.");
         } else {
             Iterator it = params.entrySet().iterator();
@@ -431,7 +394,7 @@ public class SemanticAnalyzer implements Visitor {
                 Variable param = (Variable) ((Map.Entry) it.next()).getValue();
                 args.get(counter).check(this);
                 if (!returnType.equals(param.type)) {
-                    writeError("Line " + fc.line + ", column " + fc.column + ". " + param.type + " expected but "
+                    errorManager.writeError("Line " + fc.line + ", column " + fc.column + ". " + param.type + " expected but "
                             + returnType + " found.");
                 }
                 counter++;
@@ -455,7 +418,7 @@ public class SemanticAnalyzer implements Visitor {
             var = table.get(idExpr.id.name);
             if (var == null) {
                 error = true;
-                writeError("Line " + idExpr.line + ", column " + idExpr.column + ". Variable \"" + idExpr.id.name
+                errorManager.writeError("Line " + idExpr.line + ", column " + idExpr.column + ". Variable \"" + idExpr.id.name
                         + "\"not found.");
                 returnType = Type.VOID;
                 return;
