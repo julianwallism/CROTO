@@ -110,87 +110,8 @@ public class CodeGenerator implements Visitor {
                 }
             }
         }
-
     }
-
-    /**
-     * @param num_opts
-     */
-    public void optimize(int num_opts) {
-        for (int i = 0; i < num_opts; i++) {
-            // branchesOnBranches();
-            differedAssignments();
-        }
-    }
-
-    private void branchesOnBranches() {
-        boolean labelFound;
-        String label;
-        for (int i = 0; i < instructions.size(); i++) {
-            Instruction instr = instructions.get(0);
-            if (instr.op == Operation._IF || instr.op == Operation._GOTO) {
-                label = instr.dest;
-                labelFound = false;
-                for (int j = i + 1; j < instructions.size() && !labelFound; j++) {
-                    Instruction instr2 = instructions.get(j);
-                    if (instr2.op == Operation._SKIP && instr2.dest.equals(label)) {
-                        instr2 = instructions.get(j + 1);
-                        if (instr2.op == Operation._SKIP) {
-                            instr.dest = instr2.dest;
-                            for (int k = j + 1; k < instructions.size() && !labelFound; k++) {
-                                instr2 = instructions.get(k);
-                                if (instr2.op != Operation._SKIP && instr2.dest.equals(label)) {
-                                    labelFound = true;
-                                }
-                            }
-                            if (!labelFound) {
-                                instructions.remove(j);
-                                i--;
-                                labTable.remove(label);
-                                labelFound = true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private void differedAssignments() {
-        int uses = 0, pos = 0;
-        Instruction instr, instr_aux;
-        for (int i = 0; i < instructions.size(); i++) {
-            instr = instructions.get(i);
-            if (instr.op == Operation._COPY && instr.dest.matches("^[t][0-9]+")) {
-                for (int j = i + 1; j < instructions.size(); j++) {
-                    instr_aux = instructions.get(j);
-                    if (instr.isExpression() || instr.op == Operation._IF || instr.op == Operation._PRINT) {
-                        if (instr.dest.equals(instr_aux.op1) || instr.dest.equals(instr_aux.op2)
-                                || instr.dest.equals(instr_aux.dest)) {
-                            uses++;
-                            pos = j;
-                        }
-                    }
-                }
-                if (uses == 1) {
-                    instr_aux = instructions.get(pos);
-                    if (instr.dest.equals(instr_aux.op1)) {
-                        instr_aux.op1 = instr.dest;
-                    } else if (instr.dest.equals(instr_aux.op2)) {
-                        instr_aux.op2 = instr.dest;
-                    } else {
-                        instr_aux.dest = instr.dest;
-                    }
-                    instructions.set(pos, instr_aux);
-                    instructions.remove(i--);
-                    varTable.remove(instr.dest);
-                }
-            }
-        }
-    }
-
-    /* EJECUCION NASM */
-    /* nasm –f elf –o program.o program.asm */
+    
     /**
      * Writes the assembly code to the file.
      * 
@@ -625,5 +546,81 @@ public class CodeGenerator implements Visitor {
         String tmp = newTempVar();
         generate(tmp + " = _copy " + idExpr.id.name);
         this.varName = tmp;
+    }
+
+    /**
+     * @param num_opts
+     */
+    public void optimize(int num_opts) {
+        for (int i = 0; i < num_opts; i++) {
+            // branchesOnBranches();
+            differedAssignments();
+        }
+    }
+
+    private void branchesOnBranches() {
+        boolean labelFound;
+        String label;
+        for (int i = 0; i < instructions.size(); i++) {
+            Instruction instr = instructions.get(0);
+            if (instr.op == Operation._IF || instr.op == Operation._GOTO) {
+                label = instr.dest;
+                labelFound = false;
+                for (int j = i + 1; j < instructions.size() && !labelFound; j++) {
+                    Instruction instr2 = instructions.get(j);
+                    if (instr2.op == Operation._SKIP && instr2.dest.equals(label)) {
+                        instr2 = instructions.get(j + 1);
+                        if (instr2.op == Operation._SKIP) {
+                            instr.dest = instr2.dest;
+                            for (int k = j + 1; k < instructions.size() && !labelFound; k++) {
+                                instr2 = instructions.get(k);
+                                if (instr2.op != Operation._SKIP && instr2.dest.equals(label)) {
+                                    labelFound = true;
+                                }
+                            }
+                            if (!labelFound) {
+                                instructions.remove(j);
+                                i--;
+                                labTable.remove(label);
+                                labelFound = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void differedAssignments() {
+        int uses = 0, pos = 0;
+        Instruction instr, instr_aux;
+        for (int i = 0; i < instructions.size(); i++) {
+            instr = instructions.get(i);
+            if (instr.op == Operation._COPY && instr.dest.matches("^[t][0-9]+")) {
+                for (int j = i + 1; j < instructions.size(); j++) {
+                    instr_aux = instructions.get(j);
+                    if (instr.isExpression() || instr.op == Operation._IF || instr.op == Operation._PRINT) {
+                        if (instr.dest.equals(instr_aux.op1) || instr.dest.equals(instr_aux.op2)
+                                || instr.dest.equals(instr_aux.dest)) {
+                            uses++;
+                            pos = j;
+                        }
+                    }
+                }
+                if (uses == 1) {
+                    instr_aux = instructions.get(pos);
+                    if (instr.dest.equals(instr_aux.op1)) {
+                        instr_aux.op1 = instr.dest;
+                    } else if (instr.dest.equals(instr_aux.op2)) {
+                        instr_aux.op2 = instr.dest;
+                    } else {
+                        instr_aux.dest = instr.dest;
+                    }
+                    instructions.set(pos, instr_aux);
+                    instructions.remove(i--);
+                    varTable.remove(instr.dest);
+                }
+            }
+        }
     }
 }

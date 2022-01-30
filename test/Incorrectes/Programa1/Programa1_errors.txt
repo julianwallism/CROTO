@@ -1,0 +1,4 @@
+Syntax Error: Line 13, column 1. At function, expected tokens are [error, BOOLEAN, INTEGER, IF, WHILE, BREAK, RETURN, CONSTANT, RBRACE, IDENTIFIER].
+Syntax Error: Line 15, column 13. At {, expected tokens are [SEMICOLON].
+Syntax Error: Line 19, column 24. At ;, expected tokens are [ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION, EQUAL, DIFFERENT, GREATER, LOWER, GREATER_EQUAL, LOWER_EQUAL, AND, OR, COMMA, RPAREN].
+Syntax Error: Line 22, column 1.

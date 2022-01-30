@@ -5,14 +5,17 @@
 
 package sintactic;
 
-import errors.ErrorManager;
 import java_cup.runtime.*;
 import java.util.LinkedList;
 import java.util.ArrayList;
+import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
+import java_cup.runtime.ComplexSymbolFactory.Location;
 import sintactic.symbols.CrotoSymbol;
 import semantic.Type;
 import semantic.symbols.*;
+import errors.*;
 import java_cup.runtime.ComplexSymbolFactory.Location;
+import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20160615 (GIT 4ac7450) generated parser.
   */
@@ -401,17 +404,18 @@ public class SyntaxParser extends java_cup.runtime.lr_parser {
     public void report_error(String message, Object info) {
         if (info instanceof CrotoSymbol) {
             CrotoSymbol cs = (CrotoSymbol) info;
-            errorManager.writeError(message + " at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn());
+            errorManager.writeError(new SyntaxException(cs.getLeft().getLine(), cs.getLeft().getColumn(), "", ""));
         }
     }
     
-    public void report_error(String message, Object info, String message2) {
+    public void report_error(String message, Object info, String expectedTokens) {
         if (info instanceof CrotoSymbol) {
             CrotoSymbol cs = (CrotoSymbol) info;
-            if (cs.value != null)
-                errorManager.writeError(message + " at \"" + cs.value + "\" at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
-            else 
-                errorManager.writeError(message + " at \"" + cs.getName() + "\" at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
+            if (cs.value != null){
+                errorManager.writeError(new SyntaxException(cs.getLeft().getLine(), cs.getLeft().getColumn(), cs.value, expectedTokens));
+            } else {
+                errorManager.writeError(new SyntaxException(cs.getLeft().getLine(), cs.getLeft().getColumn(), cs.getName(), expectedTokens));
+            }
         }
     }
 
@@ -419,6 +423,7 @@ public class SyntaxParser extends java_cup.runtime.lr_parser {
     public void report_fatal_error(String message, Object info) {
         done_parsing();
         report_error(message, info);
+        errorManager.closeManager();
         System.exit(0);
     }
 
@@ -430,13 +435,13 @@ public class SyntaxParser extends java_cup.runtime.lr_parser {
 
     @Override
     public void unrecovered_syntax_error(Symbol cur_token) {
-        report_fatal_error("Fatal sintax error", cur_token);
+        report_fatal_error("", cur_token);
     }
 
     protected String expecetd_tokens_names() {
         LinkedList<String> list = new LinkedList<>();
         for (Integer expected : expected_token_ids()) list.add(symbl_name_from_id(expected));
-        if(!list.isEmpty()) return "instead expected token are " + list;
+        if(!list.isEmpty()) return ", expected tokens are " + list;
         else return "";
     }
 

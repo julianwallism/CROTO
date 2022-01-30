@@ -1,0 +1,4 @@
+Semantic Error: Line 9, column 9. Variable "c" not declared.
+Semantic Error: Line 11, column 5. Variable "c" not declared.
+Semantic Error: Line 12, column 11. Variable "c" not declared.
+Semantic Error: Line 12, column 11. Unexpected type found: VOID, expected type was: INTEGER

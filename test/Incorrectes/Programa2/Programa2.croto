@@ -3,7 +3,7 @@ crotofunc main(){
     const int a = 2;
     int b;
 
-    //scan(a);
+    scan(a);
     scan(b);
 
     if(a>b){

@@ -18,7 +18,7 @@ crotofunc int fibonacci(int n){
 
 crotofunc main(){
     int resultado;
-    const int a;
+    int a;
     scan(a);
     if(a>1){
         resultado = fibonacci(a);

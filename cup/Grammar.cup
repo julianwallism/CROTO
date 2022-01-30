@@ -34,9 +34,9 @@ parser code  {:
         if (info instanceof CrotoSymbol) {
             CrotoSymbol cs = (CrotoSymbol) info;
             if (cs.value != null){
-                errorManager.writeError(new SyntaxEception(cs.getLeft().getLine(), cs.getLeft().getColumn(), cs.value, expectedTokens));
+                errorManager.writeError(new SyntaxException(cs.getLeft().getLine(), cs.getLeft().getColumn(), cs.value, expectedTokens));
             } else {
-                errorManager.writeError(new SyntaxEception(cs.getLeft().getLine(), cs.getLeft().getColumn(), cs.getName(), expectedTokens));
+                errorManager.writeError(new SyntaxException(cs.getLeft().getLine(), cs.getLeft().getColumn(), cs.getName(), expectedTokens));
             }
         }
     }
@@ -45,7 +45,7 @@ parser code  {:
     public void report_fatal_error(String message, Object info) {
         done_parsing();
         report_error(message, info);
-        System.exit(0);
+        //System.exit(0);
     }
 
     @Override

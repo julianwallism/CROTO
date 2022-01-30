@@ -9,6 +9,7 @@ crotofunc main(){
     scan(b);
     print(modulo(a,b));
 
+
 crotofunc int modulo(int a, int b){  
     int quocient;
     if(b<=0){

@@ -1,2 +1,1 @@
-Semantic Error: Line 6, column 15. Method "hola" already declared.
-Semantic Error: Line 6, column 15. Method "hola" missing return statement.
+Semantic Error: Line 6, column 5. Can't assign value to constant variable: "a".

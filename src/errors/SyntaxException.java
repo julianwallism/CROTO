@@ -16,6 +16,10 @@ public class SyntaxException extends CrotoException {
 
     @Override
     public String toString() {
-        return "Syntax Error: Line " + line + ", column " + column + ". At " + obj + expectedTokens + ".";
+        String error = "Syntax Error: Line " + line + ", column " + column + ".";
+        if(!obj.equals("")){
+            error += " At " + obj + expectedTokens + ".";
+        }
+        return error;
     }
 }

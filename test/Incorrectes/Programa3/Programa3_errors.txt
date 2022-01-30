@@ -1,4 +1,6 @@
-Semantic Error: Line 9, column 5. Expression not of BOOLEAN type.
-Semantic Error: Line 23, column 8. Expected type for "GREATER" is Integer but Boolean found.
-Semantic Error: Line 24, column 21. INTEGER expected but BOOLEAN found.
-Semantic Error: Line 26, column 9. Variable "resultado" incorrect assigment type: BOOLEAN expected type was: INTEGER
+Semantic Error: Line 9, column 5. Unexpected type found: INTEGER, expected type was: BOOLEAN
+Semantic Error: Line 21, column 11. Constant "a" must be initialized.
+Semantic Error: Line 22, column 5. Can't assign value to constant variable: "a".
+Semantic Error: Line 23, column 8. Unexpected type found: BOOLEAN, expected type was: BOOLEAN
+Semantic Error: Line 24, column 21. Unexpected type found: BOOLEAN, expected type was: INTEGER
+Semantic Error: Line 26, column 9. Unexpected type found: BOOLEAN, expected type was: INTEGER
