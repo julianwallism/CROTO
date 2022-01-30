@@ -103,6 +103,6 @@ public class Compiler {
         // String outFile = args[1];
 
         Compiler comp = new Compiler();
-        comp.compile("test/Incorrectes/Programa1/Programa1.croto", "test/Incorrectes/Programa1/Programa1");
+        comp.compile("test/Incorrectes/Programa3/Programa3.croto", "test/Incorrectes/Programa3/Programa3");
     }
 }

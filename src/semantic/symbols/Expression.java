@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 import semantic.Type;
 
-public abstract class Expression extends Structure { // HACER ABSTRACTA PARA EL CHECK?????
+public abstract class Expression extends Structure { 
 
     public Expression(int line, int column) {
         super(line, column);
@@ -95,9 +95,9 @@ public abstract class Expression extends Structure { // HACER ABSTRACTA PARA EL 
             public java.lang.Boolean doOperation(Object left, Object right) {
                 switch (this) {
                     case EQUAL:
-                        return left == right;
+                        return left.equals(right);
                     case DIFFERENT:
-                        return left != right;
+                        return !left.equals(right);
                     case GREATER:
                         return ((Integer) left > (Integer) right);
                     case LOWER:
