@@ -1,6 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+/**
+ * Practica Final Compiladores - 2021/2022
+ * 
+ * Jonathan Salisbury Vega
+ * Julián Wallis Medina
+ * Joan Sansó Pericàs
  */
 package sintactic.symbols;
 
@@ -8,10 +11,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import java_cup.runtime.Symbol;
 import java_cup.runtime.SymbolFactory;
 
-/**
- *
- * @author elsho
- */
+
 public class CrotoSymbolFactory implements SymbolFactory{
 
     public Symbol newSymbol(String name, int id, Location left, Location right, Object value) {

@@ -1,6 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+/**
+ * Practica Final Compiladores - 2021/2022
+ * 
+ * Jonathan Salisbury Vega
+ * Julián Wallis Medina
+ * Joan Sansó Pericàs
  */
 package main;
 
@@ -15,10 +18,7 @@ import semantic.symbols.Program;
 import sintactic.SyntaxParser;
 import sintactic.symbols.CrotoSymbolFactory;
 
-/**
- *
- * @author elsho, walli, sans
- */
+
 public class Compiler {
 
     private static final int OPT_LVL = 10;
@@ -104,6 +104,5 @@ public class Compiler {
 
         Compiler comp = new Compiler();
         comp.compile("test/Incorrectes/Programa1/Programa1.croto", "test/Incorrectes/Programa1/Programa1");
-        // generationTester("Test");
     }
 }

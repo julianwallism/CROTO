@@ -1,3 +1,10 @@
+/**
+ * Practica Final Compiladores - 2021/2022
+ * 
+ * Jonathan Salisbury Vega
+ * Julián Wallis Medina
+ * Joan Sansó Pericàs
+ */
 package code_generation;
 
 import java.util.ArrayList;

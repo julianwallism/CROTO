@@ -1,6 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+/**
+ * Practica Final Compiladores - 2021/2022
+ * 
+ * Jonathan Salisbury Vega
+ * Julián Wallis Medina
+ * Joan Sansó Pericàs
  */
 package sintactic.symbols;
 
@@ -8,10 +11,6 @@ import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import java_cup.runtime.Symbol;
 
-/**
- *
- * @author elsho
- */
 public class CrotoSymbol extends ComplexSymbol {
 
     public CrotoSymbol(String name, int id) {

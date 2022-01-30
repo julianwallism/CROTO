@@ -1,12 +1,15 @@
+/**
+ * Practica Final Compiladores - 2021/2022
+ * 
+ * Jonathan Salisbury Vega
+ * Julián Wallis Medina
+ * Joan Sansó Pericàs
+ */
 package semantic.symbol_table;
 
 import java.util.HashMap;
 import semantic.Type;
 
-/**
- *
- * @author sanso
- */
 public class SymbolTable {
 
     public Table currentTable;
