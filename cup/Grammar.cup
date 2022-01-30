@@ -9,7 +9,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 import sintactic.symbols.CrotoSymbol;
 import semantic.Type;
 import semantic.symbols.*;
-import errors.ErrorManager;
+import errors.*;
 
 parser code  {: 
 
@@ -26,17 +26,18 @@ parser code  {:
     public void report_error(String message, Object info) {
         if (info instanceof CrotoSymbol) {
             CrotoSymbol cs = (CrotoSymbol) info;
-            errorManager.writeError(message + " at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn());
+            errorManager.writeError(new SyntaxException(cs.getLeft().getLine(), cs.getLeft().getColumn(), "", ""));
         }
     }
     
-    public void report_error(String message, Object info, String message2) {
+    public void report_error(String message, Object info, String expectedTokens) {
         if (info instanceof CrotoSymbol) {
             CrotoSymbol cs = (CrotoSymbol) info;
-            if (cs.value != null)
-                errorManager.writeError(message + " at \"" + cs.value + "\" at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
-            else 
-                errorManager.writeError(message + " at \"" + cs.getName() + "\" at line " + cs.getLeft().getLine() + ", column " + cs.getLeft().getColumn() + ": " + message2);
+            if (cs.value != null){
+                errorManager.writeError(new SyntaxEception(cs.getLeft().getLine(), cs.getLeft().getColumn(), cs.value, expectedTokens));
+            } else {
+                errorManager.writeError(new SyntaxEception(cs.getLeft().getLine(), cs.getLeft().getColumn(), cs.getName(), expectedTokens));
+            }
         }
     }
 
@@ -55,13 +56,13 @@ parser code  {:
 
     @Override
     public void unrecovered_syntax_error(Symbol cur_token) {
-        report_fatal_error("Fatal sintax error", cur_token);
+        report_fatal_error("", cur_token);
     }
 
     protected String expecetd_tokens_names() {
         LinkedList<String> list = new LinkedList<>();
         for (Integer expected : expected_token_ids()) list.add(symbl_name_from_id(expected));
-        if(!list.isEmpty()) return "instead expected token are " + list;
+        if(!list.isEmpty()) return ", expected tokens are " + list;
         else return "";
     }
 :};

@@ -6,7 +6,7 @@ import java_cup.runtime.Symbol;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import sintactic.sym;
 import sintactic.symbols.CrotoSymbolFactory;
-import errors.ErrorManager;
+import errors.*;
 %%
 
 /* Options and declarations */
@@ -46,7 +46,7 @@ import errors.ErrorManager;
     }
        
     private void error(String message) {
-        errorManager.writeError("Lexic error at line " + (yyline+1) + ", column " + (yycolumn+1) + ": " + message);    
+        errorManager.writeError(new LexicException(yyline+1, yycolumn+1, message));     
     }
 %}
 
