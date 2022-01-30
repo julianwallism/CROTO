@@ -80,7 +80,6 @@ public class CodeGenerator implements Visitor {
             assemblyInstr.add("extern printf");
             assemblyInstr.add("extern scanf");
         }
-
         for (Instruction instr : instructions) {
             assemblyInstr.add(instr.toAssembly());
         }
@@ -194,6 +193,7 @@ public class CodeGenerator implements Visitor {
     /* nasm –f elf –o program.o program.asm */
     /**
      * Writes the assembly code to the file.
+     * 
      * @param filename
      */
     public void writeAssembly(String filename) {

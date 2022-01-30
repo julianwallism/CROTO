@@ -2,7 +2,7 @@ package code_generation;
 
 import java.util.ArrayList;
 
-public class Procedure extends Element {
+public class Procedure {
 
     String start; // label
     ArrayList<String> params;

@@ -1,6 +1,6 @@
 package code_generation;
 
-public class Variable extends Element {
+public class Variable {
 
     public String proc;
     public Type type;
